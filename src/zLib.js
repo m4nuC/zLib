@@ -2,7 +2,7 @@
 
 	// Constructor
 	var z = function ( node ) {
-		if ( this === window ) { 
+		if ( this === window ) {
 			return new z( node );
 		}
 		if (  typeof node === "string" ) {
@@ -14,12 +14,15 @@
 		}
 	};
 
+	// Statics
+	z.statics = {
+
 	/*!
 	* domready (c) Dustin Diaz 2012 - License MIT
 	* (Edited to remove dynamic naming )
 	* @todo make this lintable
 	*/
-	var domready = function (ready) {
+	domReady: function (ready) {
 		var fns = [],
 			fn,
 			f = false,
@@ -66,13 +69,7 @@
 			function (fn) {
 			loaded ? fn() : fns.push(fn);
 		});
-	}();
-
-	// Statics
-	z.statics = {
-
-		// Local reference to Dustin Diaz Domready ( code at the bottom )
-		domReady: domready,
+	}(),
 
 		selector: function ( str ) {
 			//str = z.statics.fulltrim( str );
@@ -114,7 +111,6 @@
 		}()
 	};
 
-
 	z.prototype.on = function( evt, fn ) {
 		z.statics.addEvent( this.el, evt, fn );
 		return this;
@@ -125,12 +121,12 @@
 		return this;
 	};
 
-/**
- * [scrollTop description]
- * @param  {[type]} top [description]
- * @return {[type]}     [description]
- * @todo  body.scrollTop is deprecated in strict mode. Please use 'documentElement.scrollTop' if in strict mode and 'body.scrollTop' only if in quirks mode. 
- */
+	/**
+	 * [scrollTop description]
+	 * @param  {[type]} top [description]
+	 * @return {[type]}     [description]
+	 * @todo  body.scrollTop is deprecated in strict mode. Please use 'documentElement.scrollTop' if in strict mode and 'body.scrollTop' only if in quirks mode. 
+	 */
 	z.prototype.scrollTop = function( top ) {
 		var hasScrollTop = 'scrollTop' in this.el;
 		var startPos = hasScrollTop ? this.el.scrollTop : this.el.scrollY;
