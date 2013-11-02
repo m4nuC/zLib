@@ -1,6 +1,0 @@
-{
-	"routes": {
-	  "/src": "../src",
-	},
-  "test_page": "SpecRunner.html"
-}

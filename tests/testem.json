@@ -1,0 +1,9 @@
+{
+	"routes": {
+	  "/src": "../src"
+	},
+	 "src_files": [
+    	"../src/*.js"
+  	],
+  	"test_page": "SpecRunner.html"
+}
