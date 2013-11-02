@@ -9,7 +9,6 @@
 			//this.el = z.statics.selector( node );
 		} else if ( typeof node === "object" && node.nodeType !== "undefined" ) {
 			this.el = node;
-			console.log(node);
 		}  else {
 			throw new Error( "Argument is of wrong type" );
 		}
@@ -103,22 +102,55 @@
 			} else {
 				throw new Error( 'This browser is not supported' );
 			}
-		}(),
+		}()
 	};
 
 
-	z.prototype = {
-		on : function( evt, fn ) {
-			z.statics.addEvent( this.el, evt, fn );
-			return this;
-		},
-
-		off : function( evt, fn ) {
-			z.statics.removeEvent( this.el, evt, fn );
-			return this;
-		}
+	z.prototype.on = function( evt, fn ) {
+		z.statics.addEvent( this.el, evt, fn );
+		return this;
 	};
 
+	z.prototype.off = function( evt, fn ) {
+		z.statics.removeEvent( this.el, evt, fn );
+		return this;
+	};
+
+/**
+ * [scrollTop description]
+ * @param  {[type]} top [description]
+ * @return {[type]}     [description]
+ * @todo  body.scrollTop is deprecated in strict mode. Please use 'documentElement.scrollTop' if in strict mode and 'body.scrollTop' only if in quirks mode. 
+ */
+	z.prototype.scrollTop = function( top ) {
+		var hasScrollTop = 'scrollTop' in this.el;
+		var startPos = hasScrollTop ? this.el.scrollTop : this.el.scrollY;
+		if ( top === undefined ) return startPos;
+
+		var fn = function() {
+			return hasScrollTop ?
+				function( value ){ this.el.scrollTop = value } :
+				function( value ){ this.el.scrollTo( 0, value ) };
+		}();
+		fn.call( this, top );
+		return this;
+			// this.animateScroll( fn, startPos, top, 500);
+	};
+
+	z.prototype.scrollLeft = function( left ) {
+		var hasScrollLeft = 'scrollLeft' in this.el;
+		var startPos = hasScrollLeft ? this.el.scrollLeft : this.el.scrollX;
+		if ( left === undefined ) return startPos;
+
+		var fn = function() {
+			return hasScrollLeft ?
+				function( value ){ this.el.scrollLeft = value } :
+				function( value ){ this.el.scrollTo( value, 0 ) };
+		}();
+		fn.call( this, left );
+		return this;
+			// this.animateScroll( fn, startPos, top, 500);
+	};
 
 	window.z = z;
 })(window, document);

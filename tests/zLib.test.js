@@ -64,5 +64,52 @@ describe( 'zLib', function() {
 				document.addEventListener.restore();
 			});
 		});
+
+		describe( 'scrollTop method', function() {
+			var fix;
+			beforeEach( function() {
+				fix = createFix('div', 'foo');
+				fix.style.height = '10px';
+				fix.style.overflow = 'hidden';
+				var fix2 = createFix('div', 'fooChild', false, fix);
+				fix2.style.height = "100px";
+			});
+			afterEach( function() {
+				removeFix( fix );
+			});
+			it( 'should return current scroll position if no value is passed', function() {
+				fix.scrollTop = 10;
+				var value = z( fix ).scrollTop();
+				expect( value ).toBe( 10 );
+			});
+			it( 'should set new scroll top value to element', function() {
+				z( fix ).scrollTop( 20 );
+				expect( fix.scrollTop ).toBe( 20 );
+			});
+		});
+		describe( 'scrollLeft method', function() {
+			var fix;
+			beforeEach( function() {
+				fix = createFix('div', 'foo');
+				fix.style.width = '10px';
+				fix.style.height = '10px';
+				fix.style.overflow = 'hidden';
+				var fix2 = createFix('div', 'fooChild', false, fix);
+				fix2.style.width = "100px";
+				fix2.style.height = "100px";
+			});
+			afterEach( function() {
+				removeFix( fix );
+			});
+			it( 'should return current scroll position if no value is passed', function() {
+				fix.scrollLeft = 10;
+				var value = z( fix ).scrollLeft();
+				expect( value ).toBe( 10 );
+			});
+			it( 'should set new scroll top value to element', function() {
+				z( fix ).scrollLeft( 20 );
+				expect( fix.scrollLeft ).toBe( 20 );
+			});
+		});
 	});
 });
