@@ -6,7 +6,7 @@
 			return new z( node );
 		}
 		if (  typeof node === "string" ) {
-			//this.el = z.statics.selector( node );
+			this.el = z.statics.selector( node );
 		} else if ( typeof node === "object" && node.nodeType !== "undefined" ) {
 			this.el = node;
 		}  else {
@@ -73,6 +73,15 @@
 
 		// Local reference to Dustin Diaz Domready ( code at the bottom )
 		domReady: domready,
+
+		selector: function ( str ) {
+			//str = z.statics.fulltrim( str );
+			var firstChar = str.charAt( 0 ),
+				actualName = str.slice( 1, str.length);
+			if ( firstChar === "#" ) {
+				this.el = document.getElementById( actualName );
+			} 		
+		},
 
 		addEvent: function() {
 			if ( window.addEventListener !== 'undefined' ) {

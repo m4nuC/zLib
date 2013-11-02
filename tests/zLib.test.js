@@ -8,6 +8,11 @@ describe( 'zLib', function() {
 			var newInstance = new z('hello');
 			expect( instance ).toEqual( newInstance );
 		});
+		it('Should call the selection engine if a string is passed as parameter', function() {
+			var spy = sinon.spy( z.statics, 'selector');
+			z('hello');
+			expect( spy.called ).toBe( true );
+		});		
 		it('Should throw if parameter is not passed', function() {
 			expect(function() { z() }).toThrow( new Error( "Argument is of wrong type" ) );
 		});
@@ -21,6 +26,21 @@ describe( 'zLib', function() {
 
 		it( 'should have a domReady method', function() {
 			expect( z.statics.domReady ).toBeDefined();
+		});
+
+		describe( 'selector', function() {
+			it( 'should getElementById if the parameter is a string that starts with #', function () {
+				var spy = sinon.spy( document, 'getElementById');
+				z.statics.selector('#string');
+				expect( spy.called ).toBe( true );
+				document.getElementById.restore();
+			});
+			// it( 'should the first tag it finds if the string is not and ID', function () {
+			// 	var spy = sinon.spy( document, 'getElementById');
+			// 	z.statics.selector('string');
+			// 	expect( spy.called ).toBe( true );
+			// 	document.getElementById.restore();
+			// });
 		});
 
 		describe( 'addEvent', function() {
