@@ -31,14 +31,17 @@
     tag = tag || 'div';
     id = id || 'id';
     className = className || 'className';
-    parent = parent || 'body';
+    parent = parent || document.body;
     var el = document.createElement( tag );
     el.id = id;
     el.className = className;
-    if ( parent === 'body' ) {
-      document.body.appendChild( el );
-    }
+    parent.appendChild( el );
     return el;
+  }
+
+  function removeFix( el ) {
+    var parent = el.parentNode;
+    parent.removeChild( el );
   }
 
 
