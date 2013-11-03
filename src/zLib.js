@@ -17,67 +17,69 @@
 	// Statics
 	z.statics = {
 
-	/*!
-	* domready (c) Dustin Diaz 2012 - License MIT
-	* (Edited to remove dynamic naming )
-	* @todo make this lintable
-	*/
-	domReady: function (ready) {
-		var fns = [],
-			fn,
-			f = false,
-			doc = document,
-			testEl = doc.documentElement,
-			hack = testEl.doScroll,
-			domContentLoaded = 'DOMContentLoaded',
-			addEventListener = 'addEventListener',
-			onreadystatechange = 'onreadystatechange',
-			readyState = 'readyState',
-			loadedRgx = hack ? /^loaded|^c/ : /^loaded|c/,
-			loaded = loadedRgx.test(doc[readyState]);
+		/*!
+		* domready (c) Dustin Diaz 2012 - License MIT
+		* (Edited to remove dynamic naming )
+		* @todo make this lintable
+		*/
+		domReady: function (ready) {
+			var fns = [],
+				fn,
+				f = false,
+				doc = document,
+				testEl = doc.documentElement,
+				hack = testEl.doScroll,
+				domContentLoaded = 'DOMContentLoaded',
+				addEventListener = 'addEventListener',
+				onreadystatechange = 'onreadystatechange',
+				readyState = 'readyState',
+				loadedRgx = hack ? /^loaded|^c/ : /^loaded|c/,
+				loaded = loadedRgx.test(doc[readyState]);
 
-		function flush(f) {
-			loaded = 1;
-			while (f = fns.shift()) f();
-		}
-
-		doc[addEventListener] && doc[addEventListener](domContentLoaded, fn = function () {
-			doc.removeEventListener(domContentLoaded, fn, f);
-			flush();
-		}, f);
-
-		hack && doc.attachEvent(onreadystatechange, fn = function () {
-			if (/^c/.test(doc[readyState])) {
-				doc.detachEvent(onreadystatechange, fn);
-				flush();
+			function flush(f) {
+				loaded = 1;
+				while (f = fns.shift()) f();
 			}
-		});
 
-		return (ready = hack ?
-			function (fn) {
-				self != top ?
-				loaded ? fn() : fns.push(fn) :
-				function () {
-					try {
-						testEl.doScroll('left');
-					} catch (e) {
-						return setTimeout(function() { ready(fn) }, 50);
-					}
-					fn();
-				}();
-			} :
-			function (fn) {
-			loaded ? fn() : fns.push(fn);
-		});
-	}(),
+			doc[addEventListener] && doc[addEventListener](domContentLoaded, fn = function () {
+				doc.removeEventListener(domContentLoaded, fn, f);
+				flush();
+			}, f);
+
+			hack && doc.attachEvent(onreadystatechange, fn = function () {
+				if (/^c/.test(doc[readyState])) {
+					doc.detachEvent(onreadystatechange, fn);
+					flush();
+				}
+			});
+
+			return (ready = hack ?
+				function (fn) {
+					self != top ?
+					loaded ? fn() : fns.push(fn) :
+					function () {
+						try {
+							testEl.doScroll('left');
+						} catch (e) {
+							return setTimeout(function() { ready(fn) }, 50);
+						}
+						fn();
+					}();
+				} :
+				function (fn) {
+				loaded ? fn() : fns.push(fn);
+			});
+		}(),
 
 		selector: function ( str ) {
 			//str = z.statics.fulltrim( str );
 			var firstChar = str.charAt( 0 ),
-				actualName = str.slice( 1, str.length);
+				idOrClass = str.slice( 1, str.length);
 			if ( firstChar === "#" ) {
-				this.el = document.getElementById( actualName );
-			} 		
+				return this.el = doc.getElementById( idOrClass );
+			} else {
+				return this.el = doc.getElementsByTagName( str )[0];
+			}
 		},
 
 		addEvent: function() {

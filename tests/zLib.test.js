@@ -35,11 +35,16 @@ describe( 'zLib', function() {
 				expect( spy.called ).toBe( true );
 				document.getElementById.restore();
 			});
-			// it( 'should the first tag it finds if the string is not and ID', function () {
-			// 	var spy = sinon.spy( document, 'getElementById');
-			// 	z.statics.selector('string');
-			// 	expect( spy.called ).toBe( true );
-			// 	document.getElementById.restore();
+			it( 'should the first tag it finds if the string is not and ID (not starting with #)', function () {
+				var spy = sinon.spy( document, 'getElementsByTagName');
+				z.statics.selector('string');
+				expect( spy.called ).toBe( true );
+				document.getElementsByTagName.restore();
+			});
+			// it( 'should only return the first element of a node list when selecting tags', function () {
+			// 	var body = z.statics.selector( 'body' );
+			// 	expect( document.getElementByTagName( 'body' ) ).toBe( true );
+			// 	document.getElementsByTagName.restore();
 			// });
 		});
 
