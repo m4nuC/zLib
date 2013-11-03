@@ -168,7 +168,6 @@ describe( 'zLib', function() {
 				expect( z.xPath.getPath(fix) ).toBe( '*[@id="foo"]' );
 				removeFix( fix );
 			});
-
 			it( 'return correct xpath for the node', function() {
 				fix = createFix('div');
 				text = document.createTextNode('\n');
@@ -178,8 +177,23 @@ describe( 'zLib', function() {
 				fix.appendChild(text); fix.appendChild(text2);  fix.appendChild(text3);
 				expect( z.xPath.getPath(text3) ).toBe( 'BODY/DIV[3]/text()[2]' );
 				expect( z.xPath.getPath(fix2) ).toBe( 'BODY/DIV[3]/DIV[1]' );
-				//removeFix( fix );
+				removeFix( fix );
 			});		
+		});
+		describe( 'getNodeFromXPath method', function() {
+			it( 'should get node from xPath', function() {
+				fix = createFix('div');
+				text = document.createTextNode('\n');
+				text2 = document.createTextNode('  text3text \n');
+				var fix2 = createFix('div', false, 'canYouSeeMe', fix);
+				text3 = document.createTextNode('fdsafdas');
+				fix.appendChild(text); fix.appendChild(text2);  fix.appendChild(text3);
+				var xpath1 =  z.xPath.getPath(text3);
+				var xpath2 =  z.xPath.getPath(fix2);
+				expect( z.xPath.getNodeFromXPath(xpath1).nodeValue ).toBe( '  text3text \n' );
+				expect( z.xPath.getNodeFromXPath(xpath2).className ).toContain( 'canYouSeeMe' );
+				removeFix( fix );
+			});
 		});
 	});
 
