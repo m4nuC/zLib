@@ -163,6 +163,23 @@ describe( 'zLib', function() {
 			it( 'return BODY if the node argument is equal to document.body', function() {
 				expect( z.xPath.getPath(document.body) ).toBe( 'BODY' );
 			});
+			it( 'return path to current node if it has an ID', function() {
+				fix = createFix('div', 'foo');
+				expect( z.xPath.getPath(fix) ).toBe( '*[@id="foo"]' );
+				removeFix( fix );
+			});
+
+			it( 'return correct xpath for the node', function() {
+				fix = createFix('div');
+				text = document.createTextNode('\n');
+				text2 = document.createTextNode('  data \n');
+				var fix2 = createFix('div', false, false, fix);
+				text3 = document.createTextNode('fdsafdas');
+				fix.appendChild(text); fix.appendChild(text2);  fix.appendChild(text3);
+				expect( z.xPath.getPath(text3) ).toBe( 'BODY/DIV[3]/text()[2]' );
+				expect( z.xPath.getPath(fix2) ).toBe( 'BODY/DIV[3]/DIV[1]' );
+				//removeFix( fix );
+			});		
 		});
 	});
 

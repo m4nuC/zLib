@@ -177,28 +177,30 @@
 	 */
 	z.xPath = {
 		getPath: function( node ) {
-			var parent, siblings, xPath;
+			var parent, siblings, xPath, i, lgth, ix = 0;
 
 			if ( typeof node !== 'object' ) {
 				throw new Error( 'This is not a valid target' );
+
+			// @todo should make sure that the document only contain on of this ID before using it as base
+			} else if ( node.hasOwnProperty('id') && node.id !== '' && typeof node.id !== 'undefined' ) {
+				return '*[@id="' + node.id + '"]';
+
+			} else if (node === document.body) {
+				return node.nodeName;
 			}
 
-			if (node === document.body) return node.nodeName;
+			siblings = z.statics.getSiblings( node );
 
-			parent = node.parentNode;
-			siblings = node.parentNode.childNodes;
-			var i, lgth;
-
-			for ( i = 1, lgth = siblings.length; i < lgth; i++ ) {
+			for ( i = 0, lgth = siblings.length; i < lgth; i++ ) {
+				if ( siblings[i].nodeName === node.nodeName ) ix++;
 				if ( siblings[i] === node ) {
-					return this.getPath( node.parentNode ) + '/' + siblings[i].nodeName + "[" + i + "]" ;
+					// If the node is text type we need to use the text function otherwise nodeName
+					var path = node.nodeType === 3 ? 'text()' : node.nodeName;
+					return this.getPath( node.parentNode ) + '/' + path + "[" + ix + "]" ;
 				}
-			};
-			// loop from ancestor recursively until we reach the root
-			 
-			
+			}
 		}
-
 	};
 
 	window.z = z;

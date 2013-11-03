@@ -28,11 +28,10 @@
    */
   function createFix( tag, id, className, parent ) {
     tag = tag || 'div';
-    id = id || 'id';
     className = className || 'className';
     parent = parent || document.body;
     var el = document.createElement( tag );
-    el.id = id;
+    if ( id ) el.id = id;
     el.className = className;
     parent.appendChild( el );
     return el;
