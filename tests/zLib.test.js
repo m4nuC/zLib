@@ -1,4 +1,5 @@
 describe( 'zLib', function() {
+	var fix;
 	it( 'should be available as a global object', function() {
 		expect( z ).toBeDefined();
 	});
@@ -46,6 +47,18 @@ describe( 'zLib', function() {
 			// 	expect( document.getElementByTagName( 'body' ) ).toBe( true );
 			// 	document.getElementsByTagName.restore();
 			// });
+			describe( 'getSiblings', function() {
+				it( 'should grab an element real siblings (no empty text nodes )', function () {
+					fix = createFix('div');
+					text = document.createTextNode('\n');
+					text2 = document.createTextNode('  data \n');
+					text3 = document.createTextNode('fdsafdas');
+					fix.appendChild(text); fix.appendChild(text2);  fix.appendChild(text3);
+					var fix2 = createFix('div', false, false, fix);
+					expect( z.statics. getSiblings(fix2).length ).toBe( 3 );
+					removeFix( fix );
+				});
+			});
 		});
 
 		describe( 'addEvent', function() {
@@ -91,7 +104,7 @@ describe( 'zLib', function() {
 		});
 
 		describe( 'scrollTop method', function() {
-			var fix;
+
 			beforeEach( function() {
 				fix = createFix('div', 'foo');
 				fix.style.height = '10px';
@@ -137,4 +150,51 @@ describe( 'zLib', function() {
 			});
 		});
 	});
+
+	describe( 'xPath', function() {
+		it( 'should have it\'s own namespace', function () {
+			expect( z.xPath ).toBeDefined();
+		});
+
+		describe( 'getPath method', function() {
+			it( 'should throw if invalid argument are passed', function() {
+				expect( function() { z.xPath.getPath() } ).toThrow( new Error( 'This is not a valid target' ) );
+			});
+			it( 'return BODY if the node argument is equal to document.body', function() {
+				expect( z.xPath.getPath(document.body) ).toBe( 'BODY' );
+			});
+			it( 'return path to current node if it has an ID', function() {
+				fix = createFix('div', 'foo');
+				expect( z.xPath.getPath(fix) ).toBe( '*[@id="foo"]' );
+				removeFix( fix );
+			});
+			it( 'return correct xpath for the node', function() {
+				fix = createFix('div');
+				text = document.createTextNode('\n');
+				text2 = document.createTextNode('  data \n');
+				var fix2 = createFix('div', false, false, fix);
+				text3 = document.createTextNode('fdsafdas');
+				fix.appendChild(text); fix.appendChild(text2);  fix.appendChild(text3);
+				expect( z.xPath.getPath(text3) ).toBe( 'BODY/DIV[3]/text()[2]' );
+				expect( z.xPath.getPath(fix2) ).toBe( 'BODY/DIV[3]/DIV[1]' );
+				removeFix( fix );
+			});		
+		});
+		describe( 'getNodeFromXPath method', function() {
+			it( 'should get node from xPath', function() {
+				fix = createFix('div');
+				text = document.createTextNode('\n');
+				text2 = document.createTextNode('  text3text \n');
+				var fix2 = createFix('div', false, 'canYouSeeMe', fix);
+				text3 = document.createTextNode('fdsafdas');
+				fix.appendChild(text); fix.appendChild(text2);  fix.appendChild(text3);
+				var xpath1 =  z.xPath.getPath(text3);
+				var xpath2 =  z.xPath.getPath(fix2);
+				expect( z.xPath.getNodeFromXPath(xpath1).nodeValue ).toBe( '  text3text \n' );
+				expect( z.xPath.getNodeFromXPath(xpath2).className ).toContain( 'canYouSeeMe' );
+				removeFix( fix );
+			});
+		});
+	});
+
 });

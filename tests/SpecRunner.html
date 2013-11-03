@@ -1,5 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-  "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
   <title>Jasmine Spec Runner</title>
@@ -29,11 +28,10 @@
    */
   function createFix( tag, id, className, parent ) {
     tag = tag || 'div';
-    id = id || 'id';
     className = className || 'className';
     parent = parent || document.body;
     var el = document.createElement( tag );
-    el.id = id;
+    if ( id ) el.id = id;
     el.className = className;
     parent.appendChild( el );
     return el;
@@ -72,9 +70,6 @@
 
     })();
   </script>
-
 </head>
-
-<body>
-</body>
+<body></body>
 </html>

@@ -110,7 +110,20 @@
 			} else {
 				throw new Error( 'This browser is not supported' );
 			}
-		}()
+		}(),
+
+		getSiblings: function( trg ) {
+			var parent = trg.parentNode;
+			var raw = parent.childNodes;
+			var i = 0, lgth = raw.length, siblings = [];
+			for ( ; i < lgth; i ++ ) {
+				var node = raw[i];
+				// making sure that empty space and line break text nodes are excluded
+				if ( node.nodeType === 3 && node.nodeValue.match(/^\s*$/g) ) continue;
+				siblings.push( node );
+			}
+			return siblings;
+		}
 	};
 
 	z.prototype.on = function( evt, fn ) {
@@ -136,8 +149,8 @@
 
 		var fn = function() {
 			return hasScrollTop ?
-				function( value ){ this.el.scrollTop = value } :
-				function( value ){ this.el.scrollTo( 0, value ) };
+				function( value ){ this.el.scrollTop = value; } :
+				function( value ){ this.el.scrollTo(0, value); };
 		}();
 		fn.call( this, top );
 		return this;
@@ -151,12 +164,47 @@
 
 		var fn = function() {
 			return hasScrollLeft ?
-				function( value ){ this.el.scrollLeft = value } :
-				function( value ){ this.el.scrollTo( value, 0 ) };
+				function( value ){ this.el.scrollLeft = value; } :
+				function( value ){ this.el.scrollTo(value, 0); };
 		}();
 		fn.call( this, left );
 		return this;
 			// this.animateScroll( fn, startPos, top, 500);
+	};
+
+	/**
+	 * xPath Utilities
+	 */
+	z.xPath = {
+		getPath: function( node ) {
+			var parent, siblings, xPath, i, lgth, ix = 0;
+
+			if ( typeof node !== 'object' ) {
+				throw new Error( 'This is not a valid target' );
+
+			// @todo should make sure that the document only contain on of this ID before using it as base
+			} else if ( node.hasOwnProperty('id') && node.id !== '' && typeof node.id !== 'undefined' ) {
+				return '*[@id="' + node.id + '"]';
+
+			} else if (node === document.body) {
+				return node.nodeName;
+			}
+
+			siblings = z.statics.getSiblings( node );
+
+			for ( i = 0, lgth = siblings.length; i < lgth; i++ ) {
+				if ( siblings[i].nodeName === node.nodeName ) ix++;
+				if ( siblings[i] === node ) {
+					// If the node is text type we need to use the text function otherwise nodeName
+					var path = node.nodeType === 3 ? 'text()' : node.nodeName;
+					return this.getPath( node.parentNode ) + '/' + path + "[" + ix + "]" ;
+				}
+			}
+		},
+
+		getNodeFromXPath : function( path ) {
+			return document.evaluate( "//" + path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+		}
 	};
 
 	window.z = z;
