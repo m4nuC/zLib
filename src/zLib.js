@@ -110,7 +110,20 @@
 			} else {
 				throw new Error( 'This browser is not supported' );
 			}
-		}()
+		}(),
+
+		getSiblings: function( trg ) {
+			var parent = trg.parentNode;
+			var raw = parent.childNodes;
+			var i = 0, lgth = raw.length, siblings = [];
+			for ( ; i < lgth; i ++ ) {
+				var node = raw[i];
+				// making sure that empty space and line break text nodes are excluded
+				if ( node.nodeType === 3 && node.nodeValue.match(/^\s*$/g) ) continue;
+				siblings.push( node );
+			}
+			return siblings;
+		}
 	};
 
 	z.prototype.on = function( evt, fn ) {
@@ -136,8 +149,8 @@
 
 		var fn = function() {
 			return hasScrollTop ?
-				function( value ){ this.el.scrollTop = value } :
-				function( value ){ this.el.scrollTo( 0, value ) };
+				function( value ){ this.el.scrollTop = value; } :
+				function( value ){ this.el.scrollTo(0, value); };
 		}();
 		fn.call( this, top );
 		return this;
@@ -151,12 +164,41 @@
 
 		var fn = function() {
 			return hasScrollLeft ?
-				function( value ){ this.el.scrollLeft = value } :
-				function( value ){ this.el.scrollTo( value, 0 ) };
+				function( value ){ this.el.scrollLeft = value; } :
+				function( value ){ this.el.scrollTo(value, 0); };
 		}();
 		fn.call( this, left );
 		return this;
 			// this.animateScroll( fn, startPos, top, 500);
+	};
+
+	/**
+	 * xPath Utilities
+	 */
+	z.xPath = {
+		getPath: function( node ) {
+			var parent, siblings, xPath;
+
+			if ( typeof node !== 'object' ) {
+				throw new Error( 'This is not a valid target' );
+			}
+
+			if (node === document.body) return node.nodeName;
+
+			parent = node.parentNode;
+			siblings = node.parentNode.childNodes;
+			var i, lgth;
+
+			for ( i = 1, lgth = siblings.length; i < lgth; i++ ) {
+				if ( siblings[i] === node ) {
+					return this.getPath( node.parentNode ) + '/' + siblings[i].nodeName + "[" + i + "]" ;
+				}
+			};
+			// loop from ancestor recursively until we reach the root
+			 
+			
+		}
+
 	};
 
 	window.z = z;
