@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<title></title>
 		<script src="../src/zLib.js"></script>
-		<script></script>	
+
 	</head>
 	<body>
 		<div class="article-body">
@@ -72,4 +72,11 @@
 			</div>
 		</div>
 	</body>
+	<script>
+
+	z( document ).on( "mouseup", function() {
+		var selection = z.selectionRange.selectionMethod();
+		console.log(selection);
+	});
+	</script>	
 </html>

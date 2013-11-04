@@ -1,6 +1,23 @@
 (function( window, doc, undefined ) {
 
-	// Constructor
+	/** PRIVATE STUFF **/
+
+    // Trio of functions taken from Peter Michaux's article:
+    // http://peter.michaux.ca/articles/feature-detection-state-of-the-art-browser-scripting
+    function isHostMethod(o, p) {
+        var t = typeof o[p];
+        return t == "function" || (!!(t == "object" && o[p])) || t == "unknown";
+    }
+
+    function isHostObject(o, p) {
+        return !!(typeof o[p] == "object" && o[p]);
+    }
+
+    function isHostProperty(o, p) {
+        return typeof o[p] != "undefined";
+    }
+
+	/** CONSTRUCTOR **/
 	var z = function ( node ) {
 		if ( this === window ) {
 			return new z( node );
@@ -14,7 +31,7 @@
 		}
 	};
 
-	// Statics
+	/** STATICS **/
 	z.statics = {
 
 		/*!
@@ -26,7 +43,6 @@
 			var fns = [],
 				fn,
 				f = false,
-				doc = document,
 				testEl = doc.documentElement,
 				hack = testEl.doScroll,
 				domContentLoaded = 'DOMContentLoaded',
@@ -126,6 +142,8 @@
 		}
 	};
 
+
+	/** PUBLIC API **/
 	z.prototype.on = function( evt, fn ) {
 		z.statics.addEvent( this.el, evt, fn );
 		return this;
@@ -207,5 +225,40 @@
 		}
 	};
 
+	/**
+	 * Selection range
+	 * @type {Object}
+	 */
+
+	 // externalize these 2 function so that they are call with window as context
+	function getSelection() {
+		return window.getSelection();
+	}
+
+	function docSelection() {
+		return doc.selection();
+	}
+
+	// externalize this function so that we can call() it later with z.selectionRange as context
+	function selectionMethod() {
+		if ( isHostMethod(window, "getSelection") ) {
+			this.selectionType = 'win';
+			return getSelection;
+		} else if ( isHostObject(doc, "selection") ) {
+			this.selectionType = 'doc';
+			return docSelection;
+		} else {
+			throw new Error( "This browser does not seem to support user selection APIs" );
+		}
+	}
+
+	// Closed the Object literal so that it can be used as context for selectionMethod()
+	z.selectionRange = {
+		// Used to store selection method type, values after init: win, doc
+		selectionType: undefined,
+	}
+
+	z.selectionRange.selectionMethod = selectionMethod.call( z.selectionRange )
+
 	window.z = z;
-})(window, document);
+})( window, document );

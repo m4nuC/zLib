@@ -196,5 +196,15 @@ describe( 'zLib', function() {
 			});
 		});
 	});
-
+	describe( 'selectionRange', function() {
+		it( 'should have it\'s own namespace', function () {
+			expect( z.selectionRange ).toBeDefined();
+		});
+		it( 'should detect browser\'s implementation of selection', function () {
+			expect( z.selectionRange.selectionType ).toBeDefined();
+		});
+		it( 'z.selectionRange.selectionMethod should return a range object', function () {
+			expect( z.selectionRange.selectionMethod() ).toBeDefined();
+		});
+	});
 });
