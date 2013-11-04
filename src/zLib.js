@@ -230,7 +230,7 @@
 	 * @type {Object}
 	 */
 
-	 // externalize these 2 function so that they are call with window as context
+	// externalize these 2 function so that they are call with window as context
 	function getSelection() {
 		return window.getSelection();
 	}
@@ -256,9 +256,21 @@
 	z.selectionRange = {
 		// Used to store selection method type, values after init: win, doc
 		selectionType: undefined,
-	}
 
-	z.selectionRange.selectionMethod = selectionMethod.call( z.selectionRange )
+		getRangeObj: function( selectionObj ) {
+			var range;
+			if ( this.selectionType === 'win' ) {
+				range = selectionObj.getRangeAt( 0 );
+			// Safari!
+			} else { 
+				range = doc.createRange();
+				range.setStart( selectionObj.anchorNode, selectionObj.anchorOffset );
+				range.setEnd( selectionObj.focusNode, selectionObj.focusOffset );
+			}
+		}
+	};
+
+	z.selectionRange.selectionMethod = selectionMethod.call( z.selectionRange );
 
 	window.z = z;
 })( window, document );

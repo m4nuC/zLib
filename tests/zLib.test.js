@@ -203,8 +203,14 @@ describe( 'zLib', function() {
 		it( 'should detect browser\'s implementation of selection', function () {
 			expect( z.selectionRange.selectionType ).toBeDefined();
 		});
-		it( 'z.selectionRange.selectionMethod should return a range object', function () {
+		it( 'z.selectionRange.selectionMethod methodshould return a selection object', function () {
 			expect( z.selectionRange.selectionMethod() ).toBeDefined();
+		});
+		it( 'z.selectionRange.getRangeObj method should return a range object', function () {
+			var selection =  z.selectionRange.selectionMethod();
+			var stub = sinon.stub( selection, 'getRangeAt' )
+			z.selectionRange.getRangeObj(selection);
+			expect( stub.called ).toBe( true );
 		});
 	});
 });
