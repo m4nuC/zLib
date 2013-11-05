@@ -4,17 +4,25 @@
 
     // Trio of functions taken from Peter Michaux's article:
     // http://peter.michaux.ca/articles/feature-detection-state-of-the-art-browser-scripting
-    function isHostMethod(o, p) {
+    function isHostMethod( o, p ) {
         var t = typeof o[p];
         return t == "function" || (!!(t == "object" && o[p])) || t == "unknown";
     }
 
-    function isHostObject(o, p) {
+    function isHostObject( o, p ) {
         return !!(typeof o[p] == "object" && o[p]);
     }
 
-    function isHostProperty(o, p) {
+    function isHostProperty( o, p ) {
         return typeof o[p] != "undefined";
+    }
+
+    function isEmptyTextNode( node ) {
+		return node.nodeType === 3 && node.nodeValue.match(/^\s*$/g);
+    }
+
+    function isNotEmptyTextNode( node ) {
+		return node.nodeType === 3 && ! node.nodeValue.match(/^\s*$/g);
     }
 
 	/** CONSTRUCTOR **/
@@ -135,7 +143,7 @@
 			for ( ; i < lgth; i ++ ) {
 				var node = raw[i];
 				// making sure that empty space and line break text nodes are excluded
-				if ( node.nodeType === 3 && node.nodeValue.match(/^\s*$/g) ) continue;
+				if ( isEmptyTextNode(node) ) continue;
 				siblings.push( node );
 			}
 			return siblings;
@@ -149,10 +157,8 @@
 		 * 
 		 */
 		walkTheDom: function walk( node, func, stopAt ) {
-			if ( stopAt == node ) {
-				walk.prototype.isStop = true;
-			}
 			func( node );
+			walk.prototype.isStop = stopAt == node;
 			node = node.firstChild;
 			while ( node && ! walk.prototype.isStop ) {
 				walk( node, func, stopAt );
@@ -308,8 +314,6 @@
 				throw new Error( "The Range object passed to getSerializedRange is not valid" );
 			}
 
-			// sNode = range.startContainer.nodeType === 1 ? range.startContainer.childNodes[range.startOffset] : range.startContainer;
-			// eNode = range.endContainer.nodeType === 1 ? range.endContainer.childNodes[range.endOffset] : range.endContainer;
 			sNode   = range.startContainer;
 			sOffset = range.startOffset;
 			eNode   = range.endContainer;
@@ -329,21 +333,6 @@
 
 		unserializeRange: function( serializedRange ) {
 			var range = docCreateRange();
-			// var startNode = z.xPathUtils.fetch( normalizedRange.start.el );
-			// var endNode = z.xPathUtils.fetch( normalizedRange.end.el );
-
-			// if ( startNode.nodeType === 1 ) {
-			// 	range.setStartBefore( startNode );
-			// } else if ( startNode.nodeType === 3 ) {
-			// 	range.setStart( startNode, normalizedRange.start.offset );
-			// }
-
-			// if ( endNode.nodeType === 1 ) {
-			// 	range.setEndBefore( endNode );
-			// } else if ( endNode.nodeType === 3 ) {
-			// 	range.setEnd( endNode, normalizedRange.end.offset );
-			// }
-
 			range.setStart( serializedRange.start.el, serializedRange.start.offset );
 			range.setEnd( serializedRange.end.el, serializedRange.end.offset );
 
@@ -352,18 +341,38 @@
 		},
 
 		highlightRange: function( range ) {
-			var parent;
-			//console.log("END", range.endContainer);
-			parent = range.commonAncestorContainer;
-			var el = range.endContainer;
-			var text = "";
+			var parent = range.commonAncestorContainer;
+
+			// Begin become true after the startNode has been passed
+			var passedStart = false;
+
+			if ( range.startContainer == range.endContainer && isNotEmptyTextNode(range.endContainer) ) {
+				var span = document.createElement( 'span' );
+				span.style.backgroundColor = 'yellow';
+				var splited = range.startContainer.splitText( range.startOffset );
+				var splited2 = splited.splitText( range.endOffset );
+				span.appendChild( splited.cloneNode() );
+				range.startContainer.parentNode.replaceChild( span, splited );
+				return;
+			}
+
 			z.fn.walkTheDom( parent, function(node) {
-				if(node.nodeType === 3 ) {
-					text += node.nodeValue
-				}
-				
-			}, el);
-			console.log(text);
+				var span = document.createElement( 'span' );
+				span.style.backgroundColor = 'yellow';
+				if ( node == range.startContainer ) {
+					passedStart = true;
+					var splited = node.splitText( range.startOffset ) 
+					span.appendChild( splited.cloneNode() );
+					node.parentNode.replaceChild( span, splited );
+				} else if ( node == range.endContainer ) {
+					node.splitText( range.endOffset ) 
+					span.appendChild( node.cloneNode() );
+					node.parentNode.replaceChild( span, node );
+				} else if ( passedStart && isNotEmptyTextNode(node) ) {
+					span.appendChild( node.cloneNode() );
+					node.parentNode.replaceChild( span, node );
+				}				
+			}, range.endContainer);
 		}
 	};
 
