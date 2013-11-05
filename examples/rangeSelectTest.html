@@ -4,7 +4,9 @@
 		<meta charset="utf-8">
 		<title></title>
 		<script src="../src/zLib.js"></script>
-
+		<style>
+				.hightlight { background-color: yellow}
+		</style>
 	</head>
 	<body>
 		<div class="article-body">
@@ -71,12 +73,20 @@
 				</div>
 			</div>
 		</div>
+		<a href="" id="restoreRange">Restore previous range</a>
 	</body>
 	<script>
-
+	var range;
 	z( document ).on( "mouseup", function() {
 		var selection = z.selectionRange.selectionMethod();
-		console.log(selection);
+		var range = z.selectionRange.getRangeObj( selection );
+		var serializedRange = z.selectionRange.getSerializedRange( range );
+		var unserializedRange = z.selectionRange.unserializeRange( serializedRange );
+		var newNode = document.createElement('h1').appendChild( document.createTextNode('HEY'));
+		// console.log(range);
+		// console.log(serializedRange);
+		z.selectionRange.highlightRange(unserializedRange);
+		//console.log(z.selectionRange.highlightRange(unserializedRange));
 	});
 	</script>	
 </html>

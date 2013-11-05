@@ -99,11 +99,11 @@
 		},
 
 		addEvent: function() {
-			if ( window.addEventListener !== 'undefined' ) {
+			if ( isHostMethod(window, "addEventListener") ) {
 				return function( trg, evt, fn ) {
 					trg.addEventListener( evt, fn, false );
 				};
-			} else if ( typeof window.attachEvent !== 'undefined' ) {
+			} else if ( isHostMethod(window, "attachEvent") ) {
 				return function( trg, evt, fn ) {
 					trg.attachEvent( evt, function() {
 						call( trg );
@@ -139,6 +139,25 @@
 				siblings.push( node );
 			}
 			return siblings;
+		},
+
+		/**
+		 * Crockford's walk the DOM method modified so that a context is can be specified for the call bac
+		 * @param  {[type]} node    [description]
+		 * @param  {[type]} func    [description]
+		 * @param  {[type]} context [description]
+		 * 
+		 */
+		walkTheDom: function walk( node, func, stopAt ) {
+			if ( stopAt == node ) {
+				walk.prototype.isStop = true;
+			}
+			func( node );
+			node = node.firstChild;
+			while ( node && ! walk.prototype.isStop ) {
+				walk( node, func, stopAt );
+				node = node.nextSibling;
+			}
 		}
 	};
 
@@ -239,6 +258,14 @@
 		return doc.selection();
 	}
 
+	function docCreateRange() {
+		if ( isHostMethod(doc, "createRange") ) {
+			return doc.createRange();
+		} else {
+			throw new Error( "This browser does not seem to support document.createRange" );
+		}
+	}
+
 	// externalize this function so that we can call() it later with z.selectionRange as context
 	function selectionMethod() {
 		if ( isHostMethod(window, "getSelection") ) {
@@ -252,13 +279,17 @@
 		}
 	}
 
-	// Closed the Object literal so that it can be used as context for selectionMethod()
 	z.selectionRange = {
 		// Used to store selection method type, values after init: win, doc
 		selectionType: undefined,
 
 		getRangeObj: function( selectionObj ) {
 			var range;
+
+			if ( ! selectionObj || ! isHostProperty(selectionObj, 'type') ) {
+				throw new Error("The selection object passed to getRangeObj is not valid");
+			}
+
 			if ( this.selectionType === 'win' ) {
 				range = selectionObj.getRangeAt( 0 );
 			// Safari!
@@ -267,10 +298,80 @@
 				range.setStart( selectionObj.anchorNode, selectionObj.anchorOffset );
 				range.setEnd( selectionObj.focusNode, selectionObj.focusOffset );
 			}
+			return range;
+		},
+
+		getSerializedRange: function( range ) {
+			var sNode, eNode, sOffset, eOffset;
+
+			if ( ! range || ! isHostProperty(range, 'startContainer') ) {
+				throw new Error( "The Range object passed to getSerializedRange is not valid" );
+			}
+
+			// sNode = range.startContainer.nodeType === 1 ? range.startContainer.childNodes[range.startOffset] : range.startContainer;
+			// eNode = range.endContainer.nodeType === 1 ? range.endContainer.childNodes[range.endOffset] : range.endContainer;
+			sNode   = range.startContainer;
+			sOffset = range.startOffset;
+			eNode   = range.endContainer;
+			eOffset = range.endOffset;
+
+			return {
+				start : {
+					el : sNode,
+					offset : sOffset
+				},
+				end : {
+					el : eNode,
+					offset : eOffset
+				}
+			};
+		},
+
+		unserializeRange: function( serializedRange ) {
+			var range = docCreateRange();
+			// var startNode = z.xPathUtils.fetch( normalizedRange.start.el );
+			// var endNode = z.xPathUtils.fetch( normalizedRange.end.el );
+
+			// if ( startNode.nodeType === 1 ) {
+			// 	range.setStartBefore( startNode );
+			// } else if ( startNode.nodeType === 3 ) {
+			// 	range.setStart( startNode, normalizedRange.start.offset );
+			// }
+
+			// if ( endNode.nodeType === 1 ) {
+			// 	range.setEndBefore( endNode );
+			// } else if ( endNode.nodeType === 3 ) {
+			// 	range.setEnd( endNode, normalizedRange.end.offset );
+			// }
+
+			range.setStart( serializedRange.start.el, serializedRange.start.offset );
+			range.setEnd( serializedRange.end.el, serializedRange.end.offset );
+
+			//console.log(range);
+			return range;
+		},
+
+		highlightRange: function( range ) {
+			var parent;
+			//console.log("END", range.endContainer);
+			parent = range.commonAncestorContainer;
+			var el = range.endContainer;
+			var text = "";
+			z.fn.walkTheDom( parent, function(node) {
+				if(node.nodeType === 3 ) {
+					text += node.nodeValue
+				}
+				
+			}, el);
+			console.log(text);
 		}
 	};
 
 	z.selectionRange.selectionMethod = selectionMethod.call( z.selectionRange );
 
+	// Alias statics to fn
+	z.fn = z.statics;
+
+	// Make z available on global namespace
 	window.z = z;
 })( window, document );

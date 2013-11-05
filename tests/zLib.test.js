@@ -203,14 +203,52 @@ describe( 'zLib', function() {
 		it( 'should detect browser\'s implementation of selection', function () {
 			expect( z.selectionRange.selectionType ).toBeDefined();
 		});
-		it( 'z.selectionRange.selectionMethod methodshould return a selection object', function () {
+		it( 'selectionMethod should return a selection object', function () {
 			expect( z.selectionRange.selectionMethod() ).toBeDefined();
 		});
-		it( 'z.selectionRange.getRangeObj method should return a range object', function () {
+		it( 'getRangeObj should should throw if no valid selection object is passed', function () {
+			expect( function() { z.selectionRange.getRangeObj(); }).toThrow( new Error("The selection object passed to getRangeObj is not valid") );
+		});
+		it( 'getRangeObj should return a range object', function () {
 			var selection =  z.selectionRange.selectionMethod();
-			var stub = sinon.stub( selection, 'getRangeAt' )
-			z.selectionRange.getRangeObj(selection);
+			var stub = sinon.stub( selection, 'getRangeAt' ).returns( new Range() );
+			var range = z.selectionRange.getRangeObj(selection);
 			expect( stub.called ).toBe( true );
+			expect(range.endOffset ).toBeDefined();
+		});
+
+		it( 'getSerializedRange should should throw if no valid Range object is passed', function () {
+			expect( function() { z.selectionRange.getSerializedRange(); }).toThrow( new Error( "The Range object passed to getSerializedRange is not valid" ) );
+		});
+
+		it( 'getSerializedRange should return a properly formated JSON range object', function () {
+			var range = new Range();
+			var JSONRange = z.selectionRange.getSerializedRange( range );
+			expect( JSONRange.end.offset ).toBeDefined();
+			expect( JSONRange.end.el ).toBeDefined();
+			expect( JSONRange.start.el ).toBeDefined();
+			expect( JSONRange.start.offset ).toBeDefined();
+		});
+
+		it( 'getSerializedRange properly set the start and end offsets on JSON range object', function () {
+			var range = new Range(), fix = createFix(), fix2 = createFix();
+			range.setStart(fix); range.setEnd(fix2);
+			var JSONRange = z.selectionRange.getSerializedRange( range );
+			expect( JSONRange.end.offset ).toBe( 0 );
+			expect( JSONRange.start.offset ).toBe( 0);
+		});
+
+		it( 'getSerializedRange properly set the start and end el on JSON range object', function () {
+			var range = new Range(), fix = createFix(), fix2 = createFix();
+			range.setStart(fix); range.setEnd(fix2);
+			var JSONRange = z.selectionRange.getSerializedRange( range );
+			expect( JSONRange.end.offset ).toBe( 0 );
+			expect( JSONRange.start.offset ).toBe( 0);
+		});
+
+		it( 'unserializeRange should throw if document.createRange is not implemented', function() {
+			document.createRange = false;
+			expect( function() { z.selectionRange.unserializeRange(); }).toThrow( new Error( "This browser does not seem to support document.createRange" ) );
 		});
 	});
 });
