@@ -86,10 +86,11 @@
 		var range = z.selectionRange.getRangeObj( selection );
 		var serializedRange = z.selectionRange.getSerializedRange( range );
 		var unserializedRange = z.selectionRange.unserializeRange( serializedRange );
+		
 		var newNode = document.createElement('h1').appendChild( document.createTextNode('HEY'));
 		// console.log(range);
 		// console.log(serializedRange);
-		z.selectionRange.highlightRange(unserializedRange);
+		
 		//console.log(z.selectionRange.highlightRange(unserializedRange));
 	});
 	</script>	

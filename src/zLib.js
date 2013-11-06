@@ -17,13 +17,6 @@
         return typeof o[p] != "undefined";
     }
 
-    function isEmptyTextNode( node ) {
-		return node.nodeType === 3 && node.nodeValue.match( EMPTY_STR );
-    }
-
-    function isNotEmptyTextNode( node ) {
-		return node.nodeType === 3 && ! node.nodeValue.match( EMPTY_STR );
-    }
 
 	/** CONSTRUCTOR **/
 	var z = function ( node ) {
@@ -41,6 +34,14 @@
 
 	/** STATICS **/
 	z.statics = {
+
+		isEmptyTextNode: function ( node ) {
+			return node.nodeType === 3 && node.nodeValue.match( EMPTY_STR );
+		},
+
+		isNotEmptyTextNode: function( node ) {
+			return node.nodeType === 3 && ! node.nodeValue.match( EMPTY_STR );
+		},
 
 		/*!
 		* domready (c) Dustin Diaz 2012 - License MIT
@@ -143,7 +144,7 @@
 			for ( ; i < lgth; i ++ ) {
 				var node = raw[i];
 				// making sure that empty space and line break text nodes are excluded
-				if ( isEmptyTextNode(node) ) continue;
+				if ( z.fn.isEmptyTextNode(node) ) continue;
 				siblings.push( node );
 			}
 			return siblings;
