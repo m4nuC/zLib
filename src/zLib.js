@@ -1,6 +1,31 @@
 (function( window, doc, undefined ) {
 
-	// Constructor
+	/** PRIVATE STUFF **/
+	var EMPTY_STR = /^\s*$/g;
+    // Trio of functions taken from Peter Michaux's article:
+    // http://peter.michaux.ca/articles/feature-detection-state-of-the-art-browser-scripting
+    function isHostMethod( o, p ) {
+        var t = typeof o[p];
+        return t == "function" || (!!(t == "object" && o[p])) || t == "unknown";
+    }
+
+    function isHostObject( o, p ) {
+        return !!(typeof o[p] == "object" && o[p]);
+    }
+
+    function isHostProperty( o, p ) {
+        return typeof o[p] != "undefined";
+    }
+
+    function isEmptyTextNode( node ) {
+		return node.nodeType === 3 && node.nodeValue.match( EMPTY_STR );
+    }
+
+    function isNotEmptyTextNode( node ) {
+		return node.nodeType === 3 && ! node.nodeValue.match( EMPTY_STR );
+    }
+
+	/** CONSTRUCTOR **/
 	var z = function ( node ) {
 		if ( this === window ) {
 			return new z( node );
@@ -14,7 +39,7 @@
 		}
 	};
 
-	// Statics
+	/** STATICS **/
 	z.statics = {
 
 		/*!
@@ -26,7 +51,6 @@
 			var fns = [],
 				fn,
 				f = false,
-				doc = document,
 				testEl = doc.documentElement,
 				hack = testEl.doScroll,
 				domContentLoaded = 'DOMContentLoaded',
@@ -83,11 +107,11 @@
 		},
 
 		addEvent: function() {
-			if ( window.addEventListener !== 'undefined' ) {
+			if ( isHostMethod(window, "addEventListener") ) {
 				return function( trg, evt, fn ) {
 					trg.addEventListener( evt, fn, false );
 				};
-			} else if ( typeof window.attachEvent !== 'undefined' ) {
+			} else if ( isHostMethod(window, "attachEvent") ) {
 				return function( trg, evt, fn ) {
 					trg.attachEvent( evt, function() {
 						call( trg );
@@ -119,13 +143,32 @@
 			for ( ; i < lgth; i ++ ) {
 				var node = raw[i];
 				// making sure that empty space and line break text nodes are excluded
-				if ( node.nodeType === 3 && node.nodeValue.match(/^\s*$/g) ) continue;
+				if ( isEmptyTextNode(node) ) continue;
 				siblings.push( node );
 			}
 			return siblings;
+		},
+
+		/**
+		 * Crockford's walk the DOM method modified so that a context is can be specified for the call bac
+		 * @param  {[type]} node    [description]
+		 * @param  {[type]} func    [description]
+		 * @param  {[type]} context [description]
+		 * 
+		 */
+		walkTheDom: function walk( node, func, stopAt ) {
+			func( node );
+			walk.prototype.isStop = stopAt == node;
+			node = node.firstChild;
+			while ( node && ! walk.prototype.isStop ) {
+				walk( node, func, stopAt );
+				node = node.nextSibling;
+			}
 		}
 	};
 
+
+	/** PUBLIC API **/
 	z.prototype.on = function( evt, fn ) {
 		z.statics.addEvent( this.el, evt, fn );
 		return this;
@@ -207,5 +250,152 @@
 		}
 	};
 
+	/**
+	 * Selection range
+	 * @type {Object}
+	 */
+
+	// externalize these 2 function so that they are call with window as context
+	function getSelection() {
+		return window.getSelection();
+	}
+
+	function docSelection() {
+		return doc.selection();
+	}
+
+	function docCreateRange() {
+		if ( isHostMethod(doc, "createRange") ) {
+			return doc.createRange();
+		} else {
+			throw new Error( "This browser does not seem to support document.createRange" );
+		}
+	}
+
+	// externalize this function so that we can call() it later with z.selectionRange as context
+	function selectionMethod() {
+		if ( isHostMethod(window, "getSelection") ) {
+			this.selectionType = 'win';
+			return getSelection;
+		} else if ( isHostObject(doc, "selection") ) {
+			this.selectionType = 'doc';
+			return docSelection;
+		} else {
+			throw new Error( "This browser does not seem to support user selection APIs" );
+		}
+	}
+
+
+	function emptySelection() {
+		if ( isHostMethod(window, "getSelection") ) {
+			return window.getSelection().removeAllRanges()
+		} else if ( isHostObject(doc, "selection") ) {
+			return document.selection.empty();
+		}
+	}
+
+	z.selectionRange = {
+		// Used to store selection method type, values after init: win, doc
+		selectionType: undefined,
+
+		getRangeObj: function( selectionObj ) {
+			var range;
+
+			if ( ! selectionObj || ! isHostProperty(selectionObj, 'type') ) {
+				throw new Error("The selection object passed to getRangeObj is not valid");
+			}
+
+			if ( this.selectionType === 'win' ) {
+				range = selectionObj.getRangeAt( 0 );
+			// Safari!
+			} else { 
+				range = doc.createRange();
+				range.setStart( selectionObj.anchorNode, selectionObj.anchorOffset );
+				range.setEnd( selectionObj.focusNode, selectionObj.focusOffset );
+			}
+			return range;
+		},
+
+		getSerializedRange: function( range ) {
+			var sNode, eNode, sOffset, eOffset;
+
+			if ( ! range || ! isHostProperty(range, 'startContainer') ) {
+				throw new Error( "The Range object passed to getSerializedRange is not valid" );
+			}
+
+			sNode   = range.startContainer;
+			sOffset = range.startOffset;
+			eNode   = range.endContainer;
+			eOffset = range.endOffset;
+
+			return {
+				start : {
+					el : sNode,
+					offset : sOffset
+				},
+				end : {
+					el : eNode,
+					offset : eOffset
+				}
+			};
+		},
+
+		unserializeRange: function( serializedRange ) {
+			var range = docCreateRange();
+			range.setStart( serializedRange.start.el, serializedRange.start.offset );
+			range.setEnd( serializedRange.end.el, serializedRange.end.offset );
+
+			//console.log(range);
+			return range;
+		},
+
+		highlightRange: function( range ) {
+			var parent = range.commonAncestorContainer,
+				startNode = range.startContainer,
+				endNode = range.endContainer,
+				passedStart = false,
+				span = document.createElement( 'span' ),
+				splited;
+
+			// if selection in a one liner, all text
+			if ( startNode == endNode && isNotEmptyTextNode(endNode) ) {
+				span.style.backgroundColor = 'yellow';
+				startNode.splitText( range.endOffset );
+				splited = startNode.splitText( range.startOffset );
+				span.appendChild( splited.cloneNode() );
+				startNode.parentNode.replaceChild( span, splited );
+			} else {
+
+				// Else walk the DOM until endContainer is found 
+				z.fn.walkTheDom( parent, function(node) {
+					span = document.createElement( 'span' );
+					span.style.backgroundColor = 'yellow';
+					if ( node == startNode ) {
+						passedStart = true;
+						splited = node.splitText( range.startOffset ) 
+						span.appendChild( splited.cloneNode() );
+						node.parentNode.replaceChild( span, splited );
+
+					} else if ( node == endNode ) {
+						node.splitText( range.endOffset ) 
+						span.appendChild( node.cloneNode() );
+						node.parentNode.replaceChild( span, node );
+
+					} else if ( passedStart && isNotEmptyTextNode(node) ) {
+						span.appendChild( node.cloneNode() );
+						node.parentNode.replaceChild( span, node );
+					}
+				}, endNode );
+			}
+			emptySelection();
+		}
+	};
+
+	z.selectionRange.selectionMethod = selectionMethod.call( z.selectionRange );
+
+	// Alias statics to fn
+	z.fn = z.statics;
+
+	// Make z available on global namespace
 	window.z = z;
-})(window, document);
+})( window, document );

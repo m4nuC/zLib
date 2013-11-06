@@ -37,6 +37,14 @@
     return el;
   }
 
+  function createTextFix( content, parent ) {
+    content = content || 'text';
+    parent = parent || document.body;
+    var el = document.createTextNode( content );
+    parent.appendChild( el );
+    return el;
+  }
+
   function removeFix( el ) {
     var parent = el.parentNode;
     parent.removeChild( el );

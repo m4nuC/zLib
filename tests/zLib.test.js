@@ -59,6 +59,18 @@ describe( 'zLib', function() {
 					removeFix( fix );
 				});
 			});
+
+			describe( 'walkTheDom', function() {
+				it( 'walk until it hits the stop', function () {
+					fix = createFix(), fix2 = createFix(), fix3 = createFix(), fix4 = createFix(),  fix5 = createFix(),  fix6 = createFix(false,'stopDiv',false, fix4);
+					fix.appendChild(fix2);fix.appendChild(fix3);fix.appendChild(fix4), fix.appendChild(fix5);
+					var spy = sinon.spy();
+					z.fn.walkTheDom( fix, spy, fix6 );	
+					expect( spy.getCall(4) ).toBeDefined();
+					expect( spy.getCall(5) ).toBeNull();	
+					removeFix( fix );
+				});
+			});
 		});
 
 		describe( 'addEvent', function() {
@@ -196,5 +208,93 @@ describe( 'zLib', function() {
 			});
 		});
 	});
+	describe( 'selectionRange', function() {
+		it( 'should have it\'s own namespace', function () {
+			expect( z.selectionRange ).toBeDefined();
+		});
+		it( 'should detect browser\'s implementation of selection', function () {
+			expect( z.selectionRange.selectionType ).toBeDefined();
+		});
+		it( 'selectionMethod should return a selection object', function () {
+			expect( z.selectionRange.selectionMethod() ).toBeDefined();
+		});
+		it( 'getRangeObj should should throw if no valid selection object is passed', function () {
+			expect( function() { z.selectionRange.getRangeObj(); }).toThrow( new Error("The selection object passed to getRangeObj is not valid") );
+		});
+		it( 'getRangeObj should return a range object', function () {
+			var selection =  z.selectionRange.selectionMethod();
+			var stub = sinon.stub( selection, 'getRangeAt' ).returns( new Range() );
+			var range = z.selectionRange.getRangeObj(selection);
+			expect( stub.called ).toBe( true );
+			expect(range.endOffset ).toBeDefined();
+		});
 
+		it( 'getSerializedRange should should throw if no valid Range object is passed', function () {
+			expect( function() { z.selectionRange.getSerializedRange(); }).toThrow( new Error( "The Range object passed to getSerializedRange is not valid" ) );
+		});
+
+		it( 'getSerializedRange should return a properly formated JSON range object', function () {
+			var range = new Range();
+			var JSONRange = z.selectionRange.getSerializedRange( range );
+			expect( JSONRange.end.offset ).toBeDefined();
+			expect( JSONRange.end.el ).toBeDefined();
+			expect( JSONRange.start.el ).toBeDefined();
+			expect( JSONRange.start.offset ).toBeDefined();
+		});
+
+		it( 'getSerializedRange properly set the start and end offsets on JSON range object', function () {
+			var range = new Range(), fix = createFix(), fix2 = createFix();
+			range.setStart(fix); range.setEnd(fix2);
+			var JSONRange = z.selectionRange.getSerializedRange( range );
+			expect( JSONRange.end.offset ).toBe( 0 );
+			expect( JSONRange.start.offset ).toBe( 0);
+		});
+
+		it( 'getSerializedRange properly set the start and end el on JSON range object', function () {
+			var range = new Range(), fix = createFix(), fix2 = createFix();
+			range.setStart(fix); range.setEnd(fix2);
+			var JSONRange = z.selectionRange.getSerializedRange( range );
+			expect( JSONRange.end.offset ).toBe( 0 );
+			expect( JSONRange.start.offset ).toBe( 0);
+		});
+
+		// it( 'unserializeRange should throw if document.createRange is not implemented', function() {
+		// 	document.createRange = false;
+		// 	expect( function() { z.selectionRange.unserializeRange(); }).toThrow( new Error( "This browser does not seem to support document.createRange" ) );
+		// });
+
+
+		describe( 'HighlightRange', function() {
+			var range, fix, fix2, fix3;
+
+			beforeEach(function() {
+				fix = createFix( false, 'parent'), fix2 = createFix( false, false, false, fix ), fix3 = createFix( false, false, false, fix );
+				createTextFix( 'Here is some long text to test', fix2 );
+				createTextFix( 'Here is some more long text to test', fix3 );
+				range = document.createRange();
+	
+				//console.log(fix);
+			});
+			afterEach(function() {
+				window.getSelection().removeAllRanges()
+				removeFix(fix);
+			});
+
+			it( 'should properly highlight one liners', function() {
+				range.setStart( fix2.firstChild, 5);
+				range.setEnd( fix2.firstChild, 7 );
+				z.selectionRange.highlightRange( range );
+				var span = document.querySelectorAll( '#parent  span' );
+				expect( span[0].innerHTML ).toBe('is');
+			});
+
+			it( 'should properly highlight multi liners', function() {
+				range.setStart( fix2.firstChild, 18);
+				range.setEnd( fix3.firstChild, 0 );
+				z.selectionRange.highlightRange( range );
+				var span = document.querySelectorAll( '#parent  span' );
+				expect( span[1].innerHTML ).toBe('text to test');
+			});
+		});
+	});
 });
