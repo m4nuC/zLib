@@ -150,6 +150,11 @@
 			return siblings;
 		},
 
+		trigger: function( trg, evtType ) {
+			var event = new Event( evtType );
+			trg.dispatchEvent( event );
+		},
+
 		/**
 		 * Crockford's walk the DOM method modified so that a context is can be specified for the call bac
 		 * @param  {[type]} node    [description]
@@ -177,6 +182,11 @@
 
 	z.prototype.off = function( evt, fn ) {
 		z.statics.removeEvent( this.el, evt, fn );
+		return this;
+	};
+
+	z.prototype.trigger = function( evtType ) {
+		z.statics.trigger( this.el, evtType );
 		return this;
 	};
 
