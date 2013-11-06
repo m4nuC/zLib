@@ -298,6 +298,8 @@
 		// Used to store selection method type, values after init: win, doc
 		selectionType: undefined,
 
+		emptySelection: emptySelection,
+
 		getRangeObj: function( selectionObj ) {
 			var range;
 
@@ -347,47 +349,6 @@
 
 			//console.log(range);
 			return range;
-		},
-
-		highlightRange: function( range ) {
-			var parent = range.commonAncestorContainer,
-				startNode = range.startContainer,
-				endNode = range.endContainer,
-				passedStart = false,
-				span = document.createElement( 'span' ),
-				splited;
-
-			// if selection in a one liner, all text
-			if ( startNode == endNode && isNotEmptyTextNode(endNode) ) {
-				span.style.backgroundColor = 'yellow';
-				startNode.splitText( range.endOffset );
-				splited = startNode.splitText( range.startOffset );
-				span.appendChild( splited.cloneNode() );
-				startNode.parentNode.replaceChild( span, splited );
-			} else {
-
-				// Else walk the DOM until endContainer is found 
-				z.fn.walkTheDom( parent, function(node) {
-					span = document.createElement( 'span' );
-					span.style.backgroundColor = 'yellow';
-					if ( node == startNode ) {
-						passedStart = true;
-						splited = node.splitText( range.startOffset ) 
-						span.appendChild( splited.cloneNode() );
-						node.parentNode.replaceChild( span, splited );
-
-					} else if ( node == endNode ) {
-						node.splitText( range.endOffset ) 
-						span.appendChild( node.cloneNode() );
-						node.parentNode.replaceChild( span, node );
-
-					} else if ( passedStart && isNotEmptyTextNode(node) ) {
-						span.appendChild( node.cloneNode() );
-						node.parentNode.replaceChild( span, node );
-					}
-				}, endNode );
-			}
-			emptySelection();
 		}
 	};
 

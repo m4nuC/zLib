@@ -263,38 +263,5 @@ describe( 'zLib', function() {
 		// 	expect( function() { z.selectionRange.unserializeRange(); }).toThrow( new Error( "This browser does not seem to support document.createRange" ) );
 		// });
 
-
-		describe( 'HighlightRange', function() {
-			var range, fix, fix2, fix3;
-
-			beforeEach(function() {
-				fix = createFix( false, 'parent'), fix2 = createFix( false, false, false, fix ), fix3 = createFix( false, false, false, fix );
-				createTextFix( 'Here is some long text to test', fix2 );
-				createTextFix( 'Here is some more long text to test', fix3 );
-				range = document.createRange();
-	
-				//console.log(fix);
-			});
-			afterEach(function() {
-				window.getSelection().removeAllRanges()
-				removeFix(fix);
-			});
-
-			it( 'should properly highlight one liners', function() {
-				range.setStart( fix2.firstChild, 5);
-				range.setEnd( fix2.firstChild, 7 );
-				z.selectionRange.highlightRange( range );
-				var span = document.querySelectorAll( '#parent  span' );
-				expect( span[0].innerHTML ).toBe('is');
-			});
-
-			it( 'should properly highlight multi liners', function() {
-				range.setStart( fix2.firstChild, 18);
-				range.setEnd( fix3.firstChild, 0 );
-				z.selectionRange.highlightRange( range );
-				var span = document.querySelectorAll( '#parent  span' );
-				expect( span[1].innerHTML ).toBe('text to test');
-			});
-		});
 	});
 });
