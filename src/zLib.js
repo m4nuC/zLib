@@ -1,7 +1,7 @@
 (function( window, doc, undefined ) {
 
 	/** PRIVATE STUFF **/
-
+	var EMPTY_STR = /^\s*$/g;
     // Trio of functions taken from Peter Michaux's article:
     // http://peter.michaux.ca/articles/feature-detection-state-of-the-art-browser-scripting
     function isHostMethod( o, p ) {
@@ -18,11 +18,11 @@
     }
 
     function isEmptyTextNode( node ) {
-		return node.nodeType === 3 && node.nodeValue.match(/^\s*$/g);
+		return node.nodeType === 3 && node.nodeValue.match( EMPTY_STR );
     }
 
     function isNotEmptyTextNode( node ) {
-		return node.nodeType === 3 && ! node.nodeValue.match(/^\s*$/g);
+		return node.nodeType === 3 && ! node.nodeValue.match( EMPTY_STR );
     }
 
 	/** CONSTRUCTOR **/
@@ -285,6 +285,15 @@
 		}
 	}
 
+
+	function emptySelection() {
+		if ( isHostMethod(window, "getSelection") ) {
+			return window.getSelection().removeAllRanges()
+		} else if ( isHostObject(doc, "selection") ) {
+			return document.selection.empty();
+		}
+	}
+
 	z.selectionRange = {
 		// Used to store selection method type, values after init: win, doc
 		selectionType: undefined,
@@ -341,38 +350,44 @@
 		},
 
 		highlightRange: function( range ) {
-			var parent = range.commonAncestorContainer;
+			var parent = range.commonAncestorContainer,
+				startNode = range.startContainer,
+				endNode = range.endContainer,
+				passedStart = false,
+				span = document.createElement( 'span' ),
+				splited;
 
-			// Begin become true after the startNode has been passed
-			var passedStart = false;
-
-			if ( range.startContainer == range.endContainer && isNotEmptyTextNode(range.endContainer) ) {
-				var span = document.createElement( 'span' );
+			// if selection in a one liner, all text
+			if ( startNode == endNode && isNotEmptyTextNode(endNode) ) {
 				span.style.backgroundColor = 'yellow';
-				var splited = range.startContainer.splitText( range.startOffset );
-				var splited2 = splited.splitText( range.endOffset );
+				startNode.splitText( range.endOffset );
+				splited = startNode.splitText( range.startOffset );
 				span.appendChild( splited.cloneNode() );
-				range.startContainer.parentNode.replaceChild( span, splited );
-				return;
-			}
+				startNode.parentNode.replaceChild( span, splited );
+			} else {
 
-			z.fn.walkTheDom( parent, function(node) {
-				var span = document.createElement( 'span' );
-				span.style.backgroundColor = 'yellow';
-				if ( node == range.startContainer ) {
-					passedStart = true;
-					var splited = node.splitText( range.startOffset ) 
-					span.appendChild( splited.cloneNode() );
-					node.parentNode.replaceChild( span, splited );
-				} else if ( node == range.endContainer ) {
-					node.splitText( range.endOffset ) 
-					span.appendChild( node.cloneNode() );
-					node.parentNode.replaceChild( span, node );
-				} else if ( passedStart && isNotEmptyTextNode(node) ) {
-					span.appendChild( node.cloneNode() );
-					node.parentNode.replaceChild( span, node );
-				}				
-			}, range.endContainer);
+				// Else walk the DOM until endContainer is found 
+				z.fn.walkTheDom( parent, function(node) {
+					span = document.createElement( 'span' );
+					span.style.backgroundColor = 'yellow';
+					if ( node == startNode ) {
+						passedStart = true;
+						splited = node.splitText( range.startOffset ) 
+						span.appendChild( splited.cloneNode() );
+						node.parentNode.replaceChild( span, splited );
+
+					} else if ( node == endNode ) {
+						node.splitText( range.endOffset ) 
+						span.appendChild( node.cloneNode() );
+						node.parentNode.replaceChild( span, node );
+
+					} else if ( passedStart && isNotEmptyTextNode(node) ) {
+						span.appendChild( node.cloneNode() );
+						node.parentNode.replaceChild( span, node );
+					}
+				}, endNode );
+			}
+			emptySelection();
 		}
 	};
 

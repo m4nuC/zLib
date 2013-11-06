@@ -59,6 +59,18 @@ describe( 'zLib', function() {
 					removeFix( fix );
 				});
 			});
+
+			describe( 'walkTheDom', function() {
+				it( 'walk until it hits the stop', function () {
+					fix = createFix(), fix2 = createFix(), fix3 = createFix(), fix4 = createFix(),  fix5 = createFix(),  fix6 = createFix(false,'stopDiv',false, fix4);
+					fix.appendChild(fix2);fix.appendChild(fix3);fix.appendChild(fix4), fix.appendChild(fix5);
+					var spy = sinon.spy();
+					z.fn.walkTheDom( fix, spy, fix6 );	
+					expect( spy.getCall(4) ).toBeDefined();
+					expect( spy.getCall(5) ).toBeNull();	
+					removeFix( fix );
+				});
+			});
 		});
 
 		describe( 'addEvent', function() {
@@ -246,9 +258,43 @@ describe( 'zLib', function() {
 			expect( JSONRange.start.offset ).toBe( 0);
 		});
 
-		it( 'unserializeRange should throw if document.createRange is not implemented', function() {
-			document.createRange = false;
-			expect( function() { z.selectionRange.unserializeRange(); }).toThrow( new Error( "This browser does not seem to support document.createRange" ) );
+		// it( 'unserializeRange should throw if document.createRange is not implemented', function() {
+		// 	document.createRange = false;
+		// 	expect( function() { z.selectionRange.unserializeRange(); }).toThrow( new Error( "This browser does not seem to support document.createRange" ) );
+		// });
+
+
+		describe( 'HighlightRange', function() {
+			var range, fix, fix2, fix3;
+
+			beforeEach(function() {
+				fix = createFix( false, 'parent'), fix2 = createFix( false, false, false, fix ), fix3 = createFix( false, false, false, fix );
+				createTextFix( 'Here is some long text to test', fix2 );
+				createTextFix( 'Here is some more long text to test', fix3 );
+				range = document.createRange();
+	
+				//console.log(fix);
+			});
+			afterEach(function() {
+				window.getSelection().removeAllRanges()
+				removeFix(fix);
+			});
+
+			it( 'should properly highlight one liners', function() {
+				range.setStart( fix2.firstChild, 5);
+				range.setEnd( fix2.firstChild, 7 );
+				z.selectionRange.highlightRange( range );
+				var span = document.querySelectorAll( '#parent  span' );
+				expect( span[0].innerHTML ).toBe('is');
+			});
+
+			it( 'should properly highlight multi liners', function() {
+				range.setStart( fix2.firstChild, 18);
+				range.setEnd( fix3.firstChild, 0 );
+				z.selectionRange.highlightRange( range );
+				var span = document.querySelectorAll( '#parent  span' );
+				expect( span[1].innerHTML ).toBe('text to test');
+			});
 		});
 	});
 });
