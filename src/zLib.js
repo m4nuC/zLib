@@ -155,6 +155,17 @@
 			trg.dispatchEvent( event );
 		},
 
+		getOffset: function( trg ) {
+			var _x = 0;
+			var _y = 0;
+			while( trg && !isNaN( trg.offsetLeft ) && !isNaN( trg.offsetTop ) ) {
+				_x += trg.offsetLeft - trg.scrollLeft;
+				_y += trg.offsetTop - trg.scrollTop;
+				trg = trg.offsetParent;
+			}
+			return { top: _y, left: _x };
+		},
+
 		/**
 		 * Crockford's walk the DOM method modified so that a context is can be specified for the call bac
 		 * @param  {[type]} node    [description]
@@ -188,6 +199,10 @@
 	z.prototype.trigger = function( evtType ) {
 		z.statics.trigger( this.el, evtType );
 		return this;
+	};
+
+	z.prototype.offset = function() {
+		return z.statics.getOffset( this.el );
 	};
 
 	/**

@@ -55,7 +55,16 @@ describe( 'zLib', function() {
 					text3 = document.createTextNode('fdsafdas');
 					fix.appendChild(text); fix.appendChild(text2);  fix.appendChild(text3);
 					var fix2 = createFix('div', false, false, fix);
-					expect( z.statics. getSiblings(fix2).length ).toBe( 3 );
+					expect(	z.statics.getSiblings(fix2).length ).toBe( 3 );
+					removeFix( fix );
+				});
+			});
+
+			describe( 'getOffset', function() {
+				it( "should return the top and left value of the element", function() {
+					fix = createFix('div');
+					fix.style.top = "10px";fix.style.left = "20px"; fix.style.position = "absolute";
+					expect( z.statics.getOffset(fix) ).toEqual({ top: 10, left: 20 });
 					removeFix( fix );
 				});
 			});
@@ -137,6 +146,7 @@ describe( 'zLib', function() {
 				expect( fix.scrollTop ).toBe( 20 );
 			});
 		});
+
 		describe( 'scrollLeft method', function() {
 			var fix;
 			beforeEach( function() {
@@ -160,6 +170,13 @@ describe( 'zLib', function() {
 				z( fix ).scrollLeft( 20 );
 				expect( fix.scrollLeft ).toBe( 20 );
 			});
+		});
+
+		it( 'should have a offset method to alias for statics.getOffest', function() {
+			fix = createFix('div');
+			fix.style.top = "10px";fix.style.left = "20px"; fix.style.position = "absolute";
+			expect( z(fix).offset() ).toEqual({ top: 10, left: 20 });
+			removeFix( fix );
 		});
 	});
 
