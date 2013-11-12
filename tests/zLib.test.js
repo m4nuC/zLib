@@ -252,11 +252,13 @@ describe( 'zLib', function() {
 
 		it( 'getSerializedRange should return a properly formated JSON range object', function () {
 			var range = new Range();
+			sinon.stub(z.xPath, "getPath").returns('XPATH');
 			var JSONRange = z.selectionRange.getSerializedRange( range );
 			expect( JSONRange.end.offset ).toBeDefined();
-			expect( JSONRange.end.el ).toBeDefined();
-			expect( JSONRange.start.el ).toBeDefined();
+			expect( JSONRange.end.elxPath ).toBe( 'XPATH' );
+			expect( JSONRange.start.elxPath ).toBe( 'XPATH' );
 			expect( JSONRange.start.offset ).toBeDefined();
+			z.xPath.getPath.restore();
 		});
 
 		it( 'getSerializedRange properly set the start and end offsets on JSON range object', function () {

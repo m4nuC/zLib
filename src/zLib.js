@@ -345,24 +345,24 @@
 		},
 
 		getSerializedRange: function( range ) {
-			var sNode, eNode, sOffset, eOffset;
+			var sNodeXPath, eNodeXPath, sOffset, eOffset;
 
 			if ( ! range || ! isHostProperty(range, 'startContainer') ) {
 				throw new Error( "The Range object passed to getSerializedRange is not valid" );
 			}
 
-			sNode   = range.startContainer;
-			sOffset = range.startOffset;
-			eNode   = range.endContainer;
-			eOffset = range.endOffset;
+			sNodeXPath = z.xPath.getPath( range.startContainer );
+			sOffset    = range.startOffset;
+			eNodeXPath = z.xPath.getPath( range.endContainer );
+			eOffset    = range.endOffset;
 
 			return {
 				start : {
-					el : sNode,
+					elxPath : sNodeXPath,
 					offset : sOffset
 				},
 				end : {
-					el : eNode,
+					elxPath : eNodeXPath,
 					offset : eOffset
 				}
 			};
