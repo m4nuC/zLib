@@ -155,16 +155,25 @@
 			trg.dispatchEvent( event );
 		},
 
+		/**
+		 * Get Element Offset
+		 * based on http://www.quirksmode.org/js/findpos.html
+		 * @param  {[type]} trg [description]
+		 * @return {[type]}     [description]
+		 */
 		getOffset: function( trg ) {
-			var _x = 0;
-			var _y = 0;
-			while( trg && !isNaN( trg.offsetLeft ) && !isNaN( trg.offsetTop ) ) {
-				_x += trg.offsetLeft - trg.scrollLeft;
-				_y += trg.offsetTop - trg.scrollTop;
-				trg = trg.offsetParent;
+			var curleft = 0;
+			var curtop = 0;
+
+			if (trg.offsetParent) {
+				do {
+					curleft += trg.offsetLeft;
+					curtop += trg.offsetTop;
+				} while (trg = trg.offsetParent);
 			}
-			return { top: _y, left: _x };
+			return { top: curtop, left: curleft };
 		},
+
 
 		/**
 		 * Crockford's walk the DOM method modified so that a context is can be specified for the call bac
