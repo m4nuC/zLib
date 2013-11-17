@@ -379,8 +379,10 @@
 
 		unserializeRange: function( serializedRange ) {
 			var range = docCreateRange();
-			range.setStart( serializedRange.start.el, serializedRange.start.offset );
-			range.setEnd( serializedRange.end.el, serializedRange.end.offset );
+			var startNode = z.xPath.getNodeFromXPath( serializedRange.start.elxPath );
+			var endNode = z.xPath.getNodeFromXPath( serializedRange.end.elxPath );
+			range.setStart( startNode, serializedRange.start.offset );
+			range.setEnd( endNode, serializedRange.end.offset );
 
 			//console.log(range);
 			return range;

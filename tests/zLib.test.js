@@ -277,6 +277,15 @@ describe( 'zLib', function() {
 			expect( JSONRange.start.offset ).toBe( 0);
 		});
 
+
+
+		it( 'should be able to unserialize a range  ', function () {
+			var range = new Range(), fix = createFix(), fix2 = createFix();
+			range.setStart(fix); range.setEnd(fix2);
+			var JSONRange = z.selectionRange.getSerializedRange( range );
+			var newRange = z.selectionRange.unserializeRange( JSONRange );
+			expect( range ).toEqual( newRange );
+		});
 		// it( 'unserializeRange should throw if document.createRange is not implemented', function() {
 		// 	document.createRange = false;
 		// 	expect( function() { z.selectionRange.unserializeRange(); }).toThrow( new Error( "This browser does not seem to support document.createRange" ) );
