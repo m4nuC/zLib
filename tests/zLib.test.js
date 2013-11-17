@@ -19,6 +19,20 @@ describe( 'zLib', function() {
 		});
 	});
 
+	describe( 'config', function() {
+		var instance;
+		beforeEach( function() {
+			instance = z('hello');
+		});
+		it('Should have defaults', function() {
+			expect(instance.config.highlightClass).toBe('highlighted');
+		});
+		it('should have a set method to change the defaults', function() {
+			z.config.set('highlightClass', 'justtesting')
+			expect(instance.config.highlightClass).toBe('justtesting');
+		});
+
+	});
 
 	describe( 'statics', function() {
 		it( 'namespace should be defined', function() {

@@ -32,6 +32,19 @@
 		}
 	};
 
+	/** Configuration setter **/
+	z.config = {
+		set: function( attr, value ) {
+			z.prototype.config[attr] = value;
+		}
+	};
+
+	// Config Statics
+	z.prototype.config = {
+		highlightClass : "highlighted"
+	};
+
+
 	/** STATICS **/
 	z.statics = {
 
