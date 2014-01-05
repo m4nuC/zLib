@@ -295,9 +295,12 @@
 			} else if ( node.hasOwnProperty('id') && node.id !== '' && typeof node.id !== 'undefined' ) {
 				return '*[@id="' + node.id + '"]';
 
-			} else if (node === document.body) {
+			} else if (node === document.body ) {
 				return node.nodeName;
-			}
+			} else if ( node === document ) {
+                return '';
+            }
+
 
 			siblings = z.statics.getSiblings( node );
 
@@ -312,7 +315,11 @@
 		},
 
 		getNodeFromXPath : function( path ) {
-			return document.evaluate( "//" + path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            if ( path.indexOf('HTML') > -1 ) {
+            	return document.evaluate( "/" + path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            } else {
+                return document.evaluate( "//" + path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            }
 		}
 	};
 
@@ -376,7 +383,7 @@
 			if ( this.selectionType === 'win' ) {
 				range = selectionObj.getRangeAt( 0 );
 			// Safari!
-			} else { 
+			} else {
 				range = doc.createRange();
 				range.setStart( selectionObj.anchorNode, selectionObj.anchorOffset );
 				range.setEnd( selectionObj.focusNode, selectionObj.focusOffset );
@@ -428,3 +435,4 @@
 	// Make z available on global namespace
 	window.z = z;
 })( window, document );
+
