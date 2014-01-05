@@ -126,6 +126,13 @@ describe( 'zLib', function() {
 				document.removeEventListener.restore();
 			});
 		});
+
+        describe("getNodeFromPos", function() {
+            it("should get a node from mouse coordinates", function() {
+                var node = z.statics.getNodeFromPos(0, 0);
+                expect( document.querySelector('html') ).toBe( node );
+            });
+        });
 	});
 
 	describe( 'API', function() {
@@ -221,7 +228,7 @@ describe( 'zLib', function() {
 				expect( z.xPath.getPath(text3) ).toBe( 'BODY/DIV[3]/text()[2]' );
 				expect( z.xPath.getPath(fix2) ).toBe( 'BODY/DIV[3]/DIV[1]' );
 				removeFix( fix );
-			});		
+			});
 		});
 		describe( 'getNodeFromXPath method', function() {
 			it( 'should get node from xPath', function() {
@@ -243,15 +250,19 @@ describe( 'zLib', function() {
 		it( 'should have it\'s own namespace', function () {
 			expect( z.selectionRange ).toBeDefined();
 		});
+
 		it( 'should detect browser\'s implementation of selection', function () {
 			expect( z.selectionRange.selectionType ).toBeDefined();
 		});
+
 		it( 'selectionMethod should return a selection object', function () {
 			expect( z.selectionRange.selectionMethod() ).toBeDefined();
 		});
+
 		it( 'getRangeObj should should throw if no valid selection object is passed', function () {
 			expect( function() { z.selectionRange.getRangeObj(); }).toThrow( new Error("The selection object passed to getRangeObj is not valid") );
 		});
+
 		it( 'getRangeObj should return a range object', function () {
 			var selection =  z.selectionRange.selectionMethod();
 			var stub = sinon.stub( selection, 'getRangeAt' ).returns( new Range() );
@@ -290,8 +301,6 @@ describe( 'zLib', function() {
 			expect( JSONRange.end.offset ).toBe( 0 );
 			expect( JSONRange.start.offset ).toBe( 0);
 		});
-
-
 
 		it( 'should be able to unserialize a range  ', function () {
 			var range = new Range(), fix = createFix(), fix2 = createFix();

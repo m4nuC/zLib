@@ -173,6 +173,7 @@
 		 * based on http://www.quirksmode.org/js/findpos.html
 		 * @param  {[type]} trg [description]
 		 * @return {[type]}     [description]
+         *
 		 */
 		getOffset: function( trg ) {
 			var curleft = 0;
@@ -187,13 +188,26 @@
 			return { top: curtop, left: curleft };
 		},
 
+		/**
+		 * Get Node form a cursor position
+		 * @param  {INT} x [description]
+		 * @param {INT} y [description]
+         * @return {IHTMLElement}
+		 */
+        getNodeFromPos: function( x, y ) {
+            if ( isHostMethod(document, "elementFromPoint") ) {
+                return document.elementFromPoint( x, y );
+            } else {
+				throw new Error( 'This browser is not supported' );
+			}
+        },
 
 		/**
 		 * Crockford's walk the DOM method modified so that a context is can be specified for the call bac
 		 * @param  {[type]} node    [description]
 		 * @param  {[type]} func    [description]
 		 * @param  {[type]} context [description]
-		 * 
+		 *
 		 */
 		walkTheDom: function walk( node, func, stopAt ) {
 			func( node );
@@ -227,11 +241,15 @@
 		return z.statics.getOffset( this.el );
 	};
 
+    z.prototype.getNodeFromPos = function( xPos, yPos ) {
+        return z.statics.getNodeFromPos( xPos, yPos);
+    };
+
 	/**
 	 * [scrollTop description]
 	 * @param  {[type]} top [description]
 	 * @return {[type]}     [description]
-	 * @todo  body.scrollTop is deprecated in strict mode. Please use 'documentElement.scrollTop' if in strict mode and 'body.scrollTop' only if in quirks mode. 
+	 * @todo  body.scrollTop is deprecated in strict mode. Please use 'documentElement.scrollTop' if in strict mode and 'body.scrollTop' only if in quirks mode.
 	 */
 	z.prototype.scrollTop = function( top ) {
 		var hasScrollTop = 'scrollTop' in this.el;
