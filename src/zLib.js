@@ -151,7 +151,7 @@
 		}(),
 
 		getSiblings: function( trg ) {
-			var parent = trg.parentNode;
+			var parent = trg.parentNode || parent;
 			var raw = parent.childNodes;
 			var i = 0, lgth = raw.length, siblings = [];
 			for ( ; i < lgth; i ++ ) {
