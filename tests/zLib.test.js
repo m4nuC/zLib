@@ -277,7 +277,7 @@ describe( 'zLib', function() {
 
 		it( 'getSerializedRange properly set the start and end offsets on JSON range object', function () {
 			var range = new Range(), fix = createFix(), fix2 = createFix();
-			range.setStart(fix); range.setEnd(fix2);
+			range.setStart(fix, 0); range.setEnd(fix2, 0);
 			var JSONRange = z.selectionRange.getSerializedRange( range );
 			expect( JSONRange.end.offset ).toBe( 0 );
 			expect( JSONRange.start.offset ).toBe( 0);
@@ -285,7 +285,7 @@ describe( 'zLib', function() {
 
 		it( 'getSerializedRange properly set the start and end el on JSON range object', function () {
 			var range = new Range(), fix = createFix(), fix2 = createFix();
-			range.setStart(fix); range.setEnd(fix2);
+			range.setStart(fix, 0); range.setEnd(fix2, 0);
 			var JSONRange = z.selectionRange.getSerializedRange( range );
 			expect( JSONRange.end.offset ).toBe( 0 );
 			expect( JSONRange.start.offset ).toBe( 0);
@@ -295,7 +295,7 @@ describe( 'zLib', function() {
 
 		it( 'should be able to unserialize a range  ', function () {
 			var range = new Range(), fix = createFix(), fix2 = createFix();
-			range.setStart(fix); range.setEnd(fix2);
+			range.setStart(fix, 0); range.setEnd(fix2, 0);
 			var JSONRange = z.selectionRange.getSerializedRange( range );
 			var newRange = z.selectionRange.unserializeRange( JSONRange );
 			expect( range ).toEqual( newRange );
