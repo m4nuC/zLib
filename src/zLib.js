@@ -293,7 +293,7 @@
 
 			// @todo should make sure that the document only contain on of this ID before using it as base
 			} else if ( node.hasOwnProperty('id') && node.id !== '' && typeof node.id !== 'undefined' ) {
-				return '*[@id="' + node.id + '"]';
+				return '*[@id=\\\"' + node.id + '\\\"]';
 
 			} else if (node === document.body ) {
 				return node.nodeName;
