@@ -13,7 +13,7 @@ describe( 'zLib', function() {
 			var spy = sinon.spy( z.statics, 'selector');
 			z('hello');
 			expect( spy.called ).toBe( true );
-		});		
+		});
 		it('Should throw if parameter is not passed', function() {
 			expect(function() { z() }).toThrow( new Error( "Argument is of wrong type" ) );
 		});
@@ -88,9 +88,9 @@ describe( 'zLib', function() {
 					fix = createFix(), fix2 = createFix(), fix3 = createFix(), fix4 = createFix(),  fix5 = createFix(),  fix6 = createFix(false,'stopDiv',false, fix4);
 					fix.appendChild(fix2);fix.appendChild(fix3);fix.appendChild(fix4), fix.appendChild(fix5);
 					var spy = sinon.spy();
-					z.fn.walkTheDom( fix, spy, fix6 );	
+					z.fn.walkTheDom( fix, spy, fix6 );
 					expect( spy.getCall(4) ).toBeDefined();
-					expect( spy.getCall(5) ).toBeNull();	
+					expect( spy.getCall(5) ).toBeNull();
 					removeFix( fix );
 				});
 			});
@@ -126,6 +126,16 @@ describe( 'zLib', function() {
 				document.removeEventListener.restore();
 			});
 		});
+
+        describe("trigger event", function() {
+            it("should trigger event on element", function() {
+                var spy = sinon.spy();
+                z.statics.addEvent( document, 'click', spy );
+                z.statics.triggerEvent( document, 'click' );
+                expect( spy.called ).toBe( true );
+                z.statics.removeEvent( document, 'click', spy );
+            });
+        });
 
         describe("getNodeFromPos", function() {
             it("should get a node from mouse coordinates", function() {
@@ -193,6 +203,17 @@ describe( 'zLib', function() {
 			});
 		});
 
+        describe("trigger event", function() {
+            it("should trigger event on element", function() {
+                var spy = sinon.spy();
+                z.statics.addEvent( document, 'click', spy );
+                z( document).trigger('click');
+                expect( spy.called ).toBe( true );
+                z.statics.removeEvent( document, 'click', spy );
+            });
+        });
+
+
 		it( 'should have a offset method to alias for statics.getOffest', function() {
 			fix = createFix('div');
 			fix.style.top = "10px";fix.style.left = "20px"; fix.style.position = "absolute";
@@ -215,7 +236,7 @@ describe( 'zLib', function() {
 			});
 			it( 'return path to current node if it has an ID', function() {
 				fix = createFix('div', 'foo');
-				expect( z.xPath.getPath(fix) ).toBe( '*[@id="foo"]' );
+				expect( z.xPath.getPath(fix) ).toBe( '*[@id=\\"foo\\"]' );
 				removeFix( fix );
 			});
 			it( 'return correct xpath for the node', function() {

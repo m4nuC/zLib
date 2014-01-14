@@ -150,6 +150,19 @@
 			}
 		}(),
 
+        triggerEvent: function( obj, evt ){
+             var fireOnThis = obj;
+            if( document.createEvent ) {
+                var evObj = document.createEvent( 'MouseEvents' );
+                evObj.initEvent( evt, true, false );
+                fireOnThis.dispatchEvent( evObj );
+            }
+            else if( document.createEventObject ) {
+                var evObj = document.createEventObject();
+                fireOnThis.fireEvent( 'on' + evt, evObj );
+            }
+        },
+
 		getSiblings: function( trg ) {
 			var parent = trg.parentNode || parent;
 			var raw = parent.childNodes;
@@ -243,6 +256,10 @@
 
     z.prototype.getNodeFromPos = function( xPos, yPos ) {
         return z.statics.getNodeFromPos( xPos, yPos);
+    };
+
+    z.prototype.trigger = function( evt ) {
+        return z.statics.triggerEvent( this.el, evt);
     };
 
 	/**
