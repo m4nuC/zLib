@@ -151,16 +151,12 @@
 		}(),
 
         triggerEvent: function( obj, evt ){
-             var fireOnThis = obj;
-            if( document.createEvent ) {
-                var evObj = document.createEvent( 'MouseEvents' );
-                evObj.initEvent( evt, true, false );
-                fireOnThis.dispatchEvent( evObj );
-            }
-            else if( document.createEventObject ) {
-                var evObj = document.createEventObject();
-                fireOnThis.fireEvent( 'on' + evt, evObj );
-            }
+                var event = new Event( evt , {
+                    'view': window,
+                    'bubbles': true,
+                    'cancelable': true
+                });
+                obj.dispatchEvent( event );
         },
 
 		getSiblings: function( trg ) {
