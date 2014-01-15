@@ -328,7 +328,7 @@
 		},
 
 		getNodeFromXPath : function( path ) {
-            if ( path.indexOf('HTML') > -1 ) {
+            if ( path.indexOf('HTML') > -1 ||  path === ""  ) {
             	return document.evaluate( "/" + path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             } else {
                 return document.evaluate( "//" + path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
