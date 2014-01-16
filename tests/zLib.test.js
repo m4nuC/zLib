@@ -43,6 +43,21 @@ describe( 'zLib', function() {
 			expect( z.statics.domReady ).toBeDefined();
 		});
 
+        describe("queing", function() {
+            beforeEach(function() {
+                //
+            });
+            afterEach(function() {
+                //
+            });
+            it("Should create a fixed length queue", function() {
+                var queue = z.statics.queue(2, ['test', 'testing']);
+                queue.push('sup');
+                expect( queue.length ).toBe( 2 );
+                expect( queue[1] ).toBe( 'sup' );
+            });
+        });
+
 		describe( 'selector', function() {
 			it( 'should getElementById if the parameter is a string that starts with #', function () {
 				var spy = sinon.spy( document, 'getElementById');
