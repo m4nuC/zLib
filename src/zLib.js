@@ -161,7 +161,7 @@
 
 
 	/** STATICS **/
-	z.statics = z.fn {
+	z.statics = z.fn = {
 
         hasProp: isHostProperty,
 
