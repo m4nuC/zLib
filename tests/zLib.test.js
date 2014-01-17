@@ -43,6 +43,11 @@ describe( 'zLib', function() {
 			expect( z.statics.domReady ).toBeDefined();
 		});
 
+        it("should be able to get object length with getObjLength", function() {
+            var mock = {a: 1, b:2};
+            expect(  z.fn.getObjLength( mock ) ).toBe( 2 );
+        });
+
         describe("queing", function() {
             beforeEach(function() {
                 //

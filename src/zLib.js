@@ -169,6 +169,16 @@
 
         hasObj: isHostObject,
 
+        getObjLength: function( obj ) {
+            var key, count = 0;
+            for( key in obj ) {
+                if( obj.hasOwnProperty(key) ) {
+                    count++;
+                }
+            }
+            return count;
+        },
+
 		isEmptyTextNode: function ( node ) {
 			return node.nodeType === 3 && node.nodeValue.match( EMPTY_STR );
 		},
