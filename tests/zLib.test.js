@@ -251,7 +251,7 @@ describe( 'zLib', function() {
 			});
 			it( 'return path to current node if it has an ID', function() {
 				fix = createFix('div', 'foo');
-				expect( z.xPath.getPath(fix) ).toBe( '*[@id=\\"foo\\"]' );
+				expect( z.xPath.getPath(fix) ).toBe( '*[@id="foo"]' );
 				removeFix( fix );
 			});
 			it( 'return correct xpath for the node', function() {
