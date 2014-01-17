@@ -161,7 +161,13 @@
 
 
 	/** STATICS **/
-	z.statics = {
+	z.statics = z.fn {
+
+        hasProp: isHostProperty,
+
+        hasMethod: isHostMethod,
+
+        hasObj: isHostObject,
 
 		isEmptyTextNode: function ( node ) {
 			return node.nodeType === 3 && node.nodeValue.match( EMPTY_STR );
@@ -170,6 +176,30 @@
 		isNotEmptyTextNode: function( node ) {
 			return node.nodeType === 3 && ! node.nodeValue.match( EMPTY_STR );
 		},
+
+        throttle: function ( callback, delay, scope ) {
+            delay = delay || 250;
+            scope = scope || this;
+            var last_exec = 0,
+                timeout = null;
+            return function () {
+                var context = scope || this;
+                var args = arguments,
+                    elapsed = +new Date() - last_exec;
+
+                if ( elapsed < delay ) {
+                    // hold on to it
+                    timeout && clearTimeout( timeout );
+                    timeout = setTimeout(function () {
+                        last_exec = +new Date;
+                        callback.apply( context, args );
+                    }, delay - elapsed );
+                } else {
+                    last_exec = +new Date;
+                    callback.apply( context, args );
+                }
+            };
+        },
 
 		/*!
 		* domready (c) Dustin Diaz 2012 - License MIT
