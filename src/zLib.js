@@ -606,7 +606,12 @@
 	// Alias statics to fn
 	z.fn = z.statics;
 
-	// Make z available on global namespace
-	window.z = z;
+    // Right now only available via browserify
+    if (typeof exports === 'object') {
+        module.exports = z;
+    } else {
+        window.z = z;
+    }
+
 })( window, document );
 
