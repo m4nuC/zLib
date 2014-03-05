@@ -550,7 +550,7 @@
 		getRangeObj: function( selectionObj ) {
 			var range;
 
-			if ( ! selectionObj || ! isHostProperty(selectionObj, 'type') ) {
+			if ( ! selectionObj || ! isHostProperty(selectionObj, 'anchorNode') ) {
 				throw new Error("The selection object passed to getRangeObj is not valid");
 			}
 
