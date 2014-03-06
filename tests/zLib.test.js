@@ -34,7 +34,56 @@ describe( 'zLib', function() {
 
 	});
 
-	describe( 'statics', function() {
+    describe("pub/sub", function() {
+        var labRat = {};
+        beforeEach(function() {
+            labRat = {};
+            z.statics.pSuber( labRat );
+        });
+        afterEach(function() {
+            //
+        });
+        it("should have a pub/sub factory", function() {
+            expect( z.statics.pSuber ).toBeDefined();
+        });
+        it("should allow to listen for an event and trigger the callback", function() {
+            var spy = sinon.spy();
+            labRat.listenTo('someevent', spy)
+            labRat.trigger('someevent');
+            expect( spy.called ).toBe(true);
+        });
+
+        it("should be able to pass arg as an array to the callback", function() {
+            var spy = sinon.spy();
+            labRat.listenTo('someevent', spy)
+            labRat.trigger('someevent', ['world']);
+            expect( spy.calledWith( 'world' ) ).toBe(true);
+        });
+
+        it("should be able to pass a context on which to apply the callback", function() {
+            var context = {
+                called: false,
+                someMethod: function() {
+                    this.called = true
+                }
+            };
+            labRat.listenTo('someevent', context.someMethod, context)
+            labRat.trigger('someevent');
+            expect( context.called ).toBe(true);
+        });
+
+        it("should allow to listen for an event and trigger several callbacks", function() {
+            var spy = sinon.spy();
+            var spy2 = sinon.spy();
+            labRat.listenTo('someevent', spy);
+            labRat.listenTo('someevent', spy2)
+            labRat.trigger('someevent');
+            expect( spy.called ).toBe(true);
+            expect( spy2.called ).toBe(true);
+        });
+    });
+
+    describe( 'statics', function() {
 		it( 'namespace should be defined', function() {
 			expect( z.statics ).toBeDefined();
 		});

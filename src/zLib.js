@@ -17,6 +17,76 @@
         return typeof o[p] != "undefined";
     }
 
+    // Based on http://addyosmani.com/resources/essentialjsdesignpatterns/book/#observerpatternjavascript
+    //
+    function PSub( object ) {
+        // Storage for topics that can be broadcast
+        // or listened to
+        var topics = {};
+
+        // An topic identifier
+        var subUid = -1;
+
+        // Publish or broadcast events of interest
+        // with a specific topic name and arguments
+        // such as the data to pass along
+        object.trigger = function( topic, args ) {
+
+            if ( !topics[topic] ) {
+                return false;
+            }
+
+            var subscribers = topics[topic],
+                len = subscribers ? subscribers.length : 0;
+
+            while (len--) {
+                subscribers[len].func.apply( subscribers[len].context, args );
+            }
+
+            return this;
+        };
+
+        // Subscribe to events of interest
+        // with a specific topic name and a
+        // callback function, to be executed
+        // when the topic/event is observed
+        object.listenTo = function( topic, func, context ) {
+
+            // set the context to this by default
+            context = context || this;
+
+            if (!topics[topic]) {
+                topics[topic] = [];
+            }
+
+            var token = ( ++subUid ).toString();
+            topics[topic].push({
+                token: token,
+                func: func,
+                context: context
+            });
+            return token;
+        };
+
+        // Unsubscribe from a specific
+        // topic, based on a tokenized reference
+        // to the subscription
+        object.topListening= function( token ) {
+            for ( var m in topics ) {
+                if ( topics[m] ) {
+                    for ( var i = 0, j = topics[m].length; i < j; i++ ) {
+                        if ( topics[m][i].token === token ) {
+                            topics[m].splice( i, 1 );
+                            return token;
+                        }
+                    }
+                }
+            }
+            return this;
+        };
+    }
+
+
     // Fixed length queue, http://www.bennadel.com/blog/2308-Creating-A-Fixed-Length-Queue-In-JavaScript-Using-Arrays.htm
     // Create a constructor for the fixed-length queue. This is
     // really more of a FACTORY than a construtor since an
@@ -267,6 +337,10 @@
         queue: function( maxSize, initalValues ) {
             initalValues = initalValues || [];
             return new FixedQueue (maxSize, initalValues );
+        },
+
+        pSuber: function( obj ) {
+            return PSub( obj );
         },
 
 		selector: function ( str ) {
