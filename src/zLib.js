@@ -40,7 +40,7 @@
                 len = subscribers ? subscribers.length : 0;
 
             while (len--) {
-                subscribers[len].func.apply( subscribers[len].context, args );
+                subscribers[len].func.call( subscribers[len].context, args );
             }
 
             return this;
