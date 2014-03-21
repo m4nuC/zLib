@@ -239,6 +239,48 @@
 
         hasObj: isHostObject,
 
+        getScrollTop: function() {
+            var scrollTop;
+            if( typeof(window.pageYOffset) == 'number' ) {
+                // DOM compliant, IE9+
+                scrollTop = window.pageYOffset;
+            } else {
+                // IE6-8 workaround
+                if( document.body && document.body.scrollTop ) {
+                    // IE quirks mode
+                    scrollTop = document.body.scrollTop;
+                } else if( document.documentElement && document.documentElement.scrollTop ) {
+                    // IE6+ standards compliant mode
+                    scrollTop = document.documentElement.scrollTop;
+                }
+            }
+            return scrollTop;
+        },
+
+        getScrollLeft: function() {
+            var scrollLeft;
+            if( typeof(window.pageXOffset) == 'number' ) {
+                // DOM compliant, IE9+
+                scrollLeft = window.pageXOffset;
+            }
+            else {
+                // IE6-8 workaround
+                if( document.body && document.body.scrollLeft ) {
+                    // IE quirks mode
+                    scrollLeft = document.body.scrollLeft;
+                }
+                else if( document.documentElement && document.documentElement.scrollLeft ) {
+                    // IE6+ standards compliant mode
+                    scrollLeft = document.documentElement.scrollLeft;
+                }
+            }
+            return scrollLeft;
+        },
+
+        getScrollPos: function() {
+            return { top: z.statics.getScrollTop(), left: z.statics.getScrollLeft() }
+        },
+
         getObjLength: function( obj ) {
             var key, count = 0;
             for( key in obj ) {
