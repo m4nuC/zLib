@@ -17,6 +17,36 @@
         return typeof o[p] != "undefined";
     }
 
+    var smoothScrollTo = (function () {
+        var timer, start, factor;
+
+        return function (target, duration) {
+            var offset = window.pageYOffset,
+            delta  = target - window.pageYOffset; // Y-offset difference
+            duration = Math.abs(delta) * 0.15;              // default 1 sec animation
+            start = Date.now();                       // get start time
+            factor = 0;
+
+            if( timer ) {
+                clearInterval(timer); // stop any running animation
+            }
+
+            function step() {
+                var y;
+                factor = (Date.now() - start) / duration; // get interpolation factor
+                if( factor >= 1 ) {
+                    clearInterval(timer); // stop animation
+                    factor = 1;           // clip to max 1.0
+                }
+                y = factor * delta + offset;
+                window.scrollBy(0, y - window.pageYOffset);
+            }
+
+            timer = setInterval(step, 10);
+            return timer; // return the interval timer, so you can clear it elsewhere
+        };
+    }());
+
     // Based on http://addyosmani.com/resources/essentialjsdesignpatterns/book/#observerpatternjavascript
     //
     function PSub( object ) {
@@ -540,20 +570,7 @@
 	 * @return {[type]}     [description]
 	 * @todo  body.scrollTop is deprecated in strict mode. Please use 'documentElement.scrollTop' if in strict mode and 'body.scrollTop' only if in quirks mode.
 	 */
-	z.prototype.scrollTop = function( top ) {
-		var hasScrollTop = 'scrollTop' in this.el;
-		var startPos = hasScrollTop ? this.el.scrollTop : this.el.scrollY;
-		if ( top === undefined ) return startPos;
-
-		var fn = function() {
-			return hasScrollTop ?
-				function( value ){ this.el.scrollTop = value; } :
-				function( value ){ this.el.scrollTo(0, value); };
-		}();
-		fn.call( this, top );
-		return this;
-			// this.animateScroll( fn, startPos, top, 500);
-	};
+	z.prototype.scrollTop = smoothScrollTo;
 
 	z.prototype.scrollLeft = function( left ) {
 		var hasScrollLeft = 'scrollLeft' in this.el;
