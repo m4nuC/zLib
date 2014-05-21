@@ -510,12 +510,26 @@ wgxpath.install();
 		}(),
 
         triggerEvent: function( obj, evt ){
-                var event = new Event( evt , {
-                    'view': window,
-                    'bubbles': true,
-                    'cancelable': true
-                });
-                obj.dispatchEvent( event );
+
+            // Create the event.
+            var event = document.createEvent('Event');
+
+            // Define that the event name is 'build'.
+            event.initEvent(evt, true, true);
+
+            // Listen for the event.
+            document.addEventListener('build', function (e) {
+              // e.target matches document from above
+            }, false);
+
+            // target can be any Element or other EventTarget.
+            obj.dispatchEvent(event);
+            //var event = new Event( evt , {
+                    //'view': window,
+                    //'bubbles': true,
+                    //'cancelable': true
+                //});
+                //window.dispatchEvent( event );
         },
 
 		getSiblings: function( trg ) {
